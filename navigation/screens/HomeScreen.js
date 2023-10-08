@@ -1,24 +1,54 @@
-import React from 'react'
-import { StyleSheet, View } from 'react-native'
-import { useNavigation } from '@react-navigation/core'
+import 'react-native-gesture-handler'
+import React, { useState } from 'react'
+import { Pressable, StyleSheet, View, Text} from 'react-native'
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, useAnimatedGestureHandler } from 'react-native-reanimated'
+import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler'
 import Card from '../components/SpotMeCard'
 import users from '../users'
 
 function HomeScreen() {
 
+    const translateX = useSharedValue(0);
+    const cardStyle = useAnimatedStyle(() => ({
+        transform: [
+            {
+                translateX: translateX.value,
+            },
+            {
+                rotate: '0deg',
+            }
+    ],
+
+    }));
+
+    const gestureHandler = useAnimatedGestureHandler({
+        onStart:(_,context) => {
+            context.startX = translateX.value;
+        },
+
+        onActive: (event,context) => {
+            translateX.value = context.startX + event.translationX;
+            console.log('Touch x: ', event.translationX);
+        },
+
+        onEnd: () => {
+            console.log('Touch ended');
+        }
+    });
+
     return (
-
         // View for the first page
-        <View style={styles.container}>
-
-            {/* Each card is a different profile. The general card layout can be changed in navigation/components/SpotMeCard/index.js*/}
-            <Card user={users[0]}/>
-        </View>
+        <GestureHandlerRootView style={styles.container}>
+            <PanGestureHandler onGestureEvent={gestureHandler}>
+                <Animated.View style={[styles.animatedCard,cardStyle]}>
+                    {/* Each card is a different profile. The general card layout can be changed in navigation/components/SpotMeCard/index.js*/}
+                    <Card user={users[2]}/>
+                </Animated.View>
+            </PanGestureHandler>
+        </GestureHandlerRootView>
        
     )
 }
-
-
 
 const styles = StyleSheet.create({
 
@@ -29,6 +59,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
 
+    animatedCard:{
+        width:'100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
 })
 
 export default HomeScreen
