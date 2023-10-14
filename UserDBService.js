@@ -1,15 +1,18 @@
+import { validatePathConfig } from "@react-navigation/native"
 import { docDB } from "./firebase"
 import { calcProspectScore } from "./ProspectScoreService"
 import { collection, getDoc, getDocs, query, where } from "firebase/compat/firestore"
 
 const usersCol = collection(docDB, "users")
 var localUser = null
+var sortedProspects = null
 
 async function loadLocalUser(email){
     const qry = query(usersCol, where("email", "==", email))
     const snapshot = await getDoc(qry)
-    if(snaphot.exists()){
+    if(snapshot.exists()){
         localUser = snapshot.data()
+        return localUser
     }else{
         console.log("WHUT DA HELLLLLL We couldn't find a user with the email'" + email + "' XDDDDD")
     }
@@ -19,9 +22,9 @@ function getLocalUser(){
     return localUser
 }
 
-async function loadAndGetProspects(){
+async function loadProspects(){
     if(localUser != null){
-        const qry = query(usersCol, where("country", "==", localUser.country))
+        const qry = query(usersCol, where("country", "==", localUser.country), where("state", "==", localUser.state))
         const snapshot = await getDocs(qry)
         validProspects = []
 
@@ -32,9 +35,17 @@ async function loadAndGetProspects(){
                 validProspects.push(otherUser)
             }
         })
+
+        validProspects.sort((user1, user2) => user2.score - user1.score)
+        sortedProspects = validProspects
+        return sortedProspects
     }else{
-        console.log("Don't load prospects before loading the local user")
+        console.warn("Don't load prospects before loading the local user")
     }
 }
 
-export { loadLocalUser, getLocalUser }
+function getProspects(){
+    return sortedProspects
+}
+
+export { loadLocalUser, getLocalUser, loadProspects, getProspects }

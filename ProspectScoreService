@@ -4,8 +4,8 @@ const MISSING_TRAINING_TYPE_WEIGHT = 10
 const SCHEDULE_DIFF_IN_SECS_WEIGHT = 0.00006
 
 const MAX_AGE_DIFF_PERCENT = 0.2
-const MAX_EXP_DIFF = 30;
-const MAX_LIVING_DIST_MI = 25
+const MAX_EXP_DIFF = 30
+const MAX_DIST = 25
 
 const TRAINING_TYPE_PROPS = [
     "bodybuilding", "powerlifting", "crossfit", "calisthenics",
@@ -17,7 +17,7 @@ const IDEAL_SCHEDULE_DAY_PROPS = [
 ]
 
 function calcProspectScore(localUser, otherUser){
-    if(livesTooFar(localUser, otherUser)){
+    if(calcDistance(localUser, otherUser) > MAX_DIST){
         return NaN
     }
 
@@ -60,8 +60,10 @@ function calcProspectScore(localUser, otherUser){
     return score
 }
 
-function livesTooFar(localUser, otherUser){
-    return false // TODO: Google Maps API type shiii
+function calcDistance(localUser, otherUser){
+    distance = 0
+    otherUser.distance = distance
+    return distance // TODO: Google Maps API type shiii
 }
 
 export { calcProspectScore }
