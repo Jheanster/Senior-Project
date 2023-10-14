@@ -1,0 +1,67 @@
+const AGE_DIFF_PERCENT_WEIGHT = 10
+const EXP_DIFF_WEIGHT = 1
+const MISSING_TRAINING_TYPE_WEIGHT = 10
+const SCHEDULE_DIFF_IN_SECS_WEIGHT = 0.00006
+
+const MAX_AGE_DIFF_PERCENT = 0.2
+const MAX_EXP_DIFF = 30;
+const MAX_LIVING_DIST_MI = 25
+
+const TRAINING_TYPE_PROPS = [
+    "bodybuilding", "powerlifting", "crossfit", "calisthenics",
+    "running", "cycling", "weight-loss", "general-fitness"
+]
+
+const IDEAL_SCHEDULE_DAY_PROPS = [
+    "ideal-mon", "ideal-tue", "ideal-wed", "ideal-thu", "ideal-fri", "ideal-sat", "ideal-sun"
+]
+
+function calcProspectScore(localUser, otherUser){
+    if(livesTooFar(localUser, otherUser)){
+        return NaN
+    }
+
+    let score = 100
+
+    ageDiffPercent = Math.abs(localUser.age - otherUser.age)/Math.min(localUser.age, otherUser.age)
+    if(ageDiffPercent > MAX_AGE_DIFF_PERCENT){
+        return NaN
+    }else{
+        score -= ageDiffPercent*AGE_DIFF_PERCENT_WEIGHT
+    }
+
+    expDiff = Math.abs(localUser.experience - otherUser.experience)
+    if(expDiff > MAX_EXP_DIFF){
+        return NaN
+    }else{
+        score -= expDiff*EXP_DIFF_WEIGHT
+    }
+    
+    let noCommonTT = true
+    for(ttProp in TRAINING_TYPE_PROPS){
+        if(localUser[ttProp]){
+            if(otherUser[ttProp]){
+                noCommonTT = false
+            }else{
+                score -= MISSING_TRAINING_TYPE_WEIGHT
+            }
+        }
+    }
+
+    if(noCommonTT){
+        return NaN
+    }
+
+    for(dayProp in IDEAL_SCHEDULE_DAY_PROPS){
+        const timeDiff = Math.abs(localUser[dayProp] - otherUser[dayProp])
+        score -= timeDiff*SCHEDULE_DIFF_IN_SECS_WEIGHT
+    }
+
+    return score
+}
+
+function livesTooFar(localUser, otherUser){
+    return false // TODO: Google Maps API type shiii
+}
+
+export { calcProspectScore }
