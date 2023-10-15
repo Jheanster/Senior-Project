@@ -1,7 +1,9 @@
-import { validatePathConfig } from "@react-navigation/native"
 import { docDB } from "./firebase"
-import { calcProspectScore } from "./ProspectScoreService"
+import { assignProspectScore } from "./ProspectScoreService"
+import { assignDistanceFromLocalUser } from "./UserLocationService"
 import { collection, getDoc, getDocs, query, where } from "firebase/compat/firestore"
+
+const MAX_DISTANCE_MI = 25
 
 const usersCol = collection(docDB, "users")
 var localUser = null
@@ -26,13 +28,17 @@ async function loadProspects(){
     if(localUser != null){
         const qry = query(usersCol, where("country", "==", localUser.country), where("state", "==", localUser.state))
         const snapshot = await getDocs(qry)
-        validProspects = []
+        const validProspects = []
 
         snapshot.foreach((otherUser) => {
-            const score = calcProspectScore(localUser, otherUser)
-            if(!isNaN(score)){
-                otherUser.score = score
-                validProspects.push(otherUser)
+            assignDistanceFromLocalUser(localUser, otherUser)
+
+            if(otherUser.distance <= MAX_DISTANCE_MI){
+                assignProspectScore(localUser, otherUser)
+                
+                if(!isNaN(otherUser.score)){
+                    validProspects.push(otherUser)
+                }
             }
         })
 
@@ -41,6 +47,7 @@ async function loadProspects(){
         return sortedProspects
     }else{
         console.warn("Don't load prospects before loading the local user")
+        return null
     }
 }
 

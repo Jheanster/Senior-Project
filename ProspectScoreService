@@ -1,11 +1,12 @@
 const AGE_DIFF_PERCENT_WEIGHT = 10
 const EXP_DIFF_WEIGHT = 1
 const MISSING_TRAINING_TYPE_WEIGHT = 10
-const SCHEDULE_DIFF_IN_SECS_WEIGHT = 0.00006
+const MAX_ONE_DAY_SCHEDULE_DIFF_WEIGHT = 5
 
 const MAX_AGE_DIFF_PERCENT = 0.2
 const MAX_EXP_DIFF = 30
-const MAX_DIST = 25
+
+const SECS_PER_DAY = 86400
 
 const TRAINING_TYPE_PROPS = [
     "bodybuilding", "powerlifting", "crossfit", "calisthenics",
@@ -16,11 +17,7 @@ const IDEAL_SCHEDULE_DAY_PROPS = [
     "ideal-mon", "ideal-tue", "ideal-wed", "ideal-thu", "ideal-fri", "ideal-sat", "ideal-sun"
 ]
 
-function calcProspectScore(localUser, otherUser){
-    if(calcDistance(localUser, otherUser) > MAX_DIST){
-        return NaN
-    }
-
+function assignProspectScore(localUser, otherUser){
     let score = 100
 
     ageDiffPercent = Math.abs(localUser.age - otherUser.age)/Math.min(localUser.age, otherUser.age)
@@ -52,18 +49,19 @@ function calcProspectScore(localUser, otherUser){
         return NaN
     }
 
-    for(dayProp in IDEAL_SCHEDULE_DAY_PROPS){ //TODO: account for rest days
-        const timeDiff = Math.abs(localUser[dayProp] - otherUser[dayProp])
-        score -= timeDiff*SCHEDULE_DIFF_IN_SECS_WEIGHT
+    for(dayProp in IDEAL_SCHEDULE_DAY_PROPS){
+        const localResting = localUser[dayProp] == -1
+        const otherResting = otherUser[dayProp] == -1
+
+        if(localResting != otherResting){
+            score -= MAX_ONE_DAY_SCHEDULE_DIFF_WEIGHT
+        }else{
+            const timeDiff = Math.abs(localUser[dayProp] - otherUser[dayProp])
+            score -= timeDiff/SECS_PER_DAY*MAX_ONE_DAY_SCHEDULE_DIFF_WEIGHT
+        }
     }
 
     return score
 }
 
-function calcDistance(localUser, otherUser){
-    distance = 0
-    otherUser.distance = distance
-    return distance // TODO: Google Maps API type shiii
-}
-
-export { calcProspectScore }
+export { assignProspectScore }
