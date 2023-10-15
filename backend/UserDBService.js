@@ -1,7 +1,7 @@
-import { docDB } from "./firebase"
+import { docDB } from "../firebase"
 import { assignProspectScore } from "./ProspectScoreService"
 import { assignDistanceFromLocalUser } from "./UserLocationService"
-import { collection, getDoc, getDocs, query, where } from "firebase/compat/firestore"
+import { collection, doc, getDoc, getDocs, addDoc, setDoc, query, where } from "firebase/compat/firestore"
 
 const MAX_DISTANCE_MI = 25
 
@@ -26,7 +26,13 @@ function getLocalUser(){
 
 async function loadProspects(){
     if(localUser != null){
-        const qry = query(usersCol, where("country", "==", localUser.country), where("state", "==", localUser.state))
+        const qry = query(
+            usersCol,
+            where("country", "==", localUser.country)
+                .where("state", "==", localUser.state)
+                .where("id", "!=", localUser.id)
+        )
+
         const snapshot = await getDocs(qry)
         const validProspects = []
 
@@ -55,4 +61,12 @@ function getProspects(){
     return sortedProspects
 }
 
-export { loadLocalUser, getLocalUser, loadProspects, getProspects }
+async function addLocalUserToDB(newData){
+    localUser = await addDoc(usersCol, newData)
+}
+
+async function updateLocalUserInDB(newData){
+    localUser = await setDoc(doc(docDB, "users", localUser.id), newData)
+}
+
+export { loadLocalUser, getLocalUser, loadProspects, getProspects, addLocalUserToDB, updateLocalUserInDB }
