@@ -52,7 +52,7 @@ function calcProspectScore(localUser, otherUser){
         return NaN
     }
 
-    for(dayProp in IDEAL_SCHEDULE_DAY_PROPS){
+    for(dayProp in IDEAL_SCHEDULE_DAY_PROPS){ //TODO: account for rest days
         const timeDiff = Math.abs(localUser[dayProp] - otherUser[dayProp])
         score -= timeDiff*SCHEDULE_DIFF_IN_SECS_WEIGHT
     }
