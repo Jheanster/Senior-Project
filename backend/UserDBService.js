@@ -1,73 +1,78 @@
 import { docDB, fileDB } from "../firebase"
 import { assignProspectScore } from "./ProspectScoreService"
 import { assignDistanceFromLocalUser } from "./UserLocationService"
-import { collection, doc, getDoc, getDocs, addDoc, setDoc, query, where } from "firebase/compat/firestore"
 
 const MAX_DISTANCE_MI = 25
 const PFP_STORAGE_PATH = "pfps/pfp-{0}.png"
 
-const usersCol = collection(docDB, "users")
+const usersCol = docDB.collection("users")
 var localUser = null
 var sortedProspects = null
 
-async function loadLocalUser(email){
-    const qry = query(usersCol, where("email", "==", email))
-    const snapshot = await getDoc(qry)
-    if(snapshot.exists()){
-        localUser = snapshot.data()
-        return localUser
-    }else{
-        console.warn("WHUT DA HELLLLLL We couldn't find a user with the email '" + email + "' XDDDDD")
-        return null
-    }
+function loadLocalUserData(email, onCompletionFunc){
+    usersCol.where("email", "==", email).get().then((snapshot) => {
+        if(snapshot.size == 1){
+            localUser = snapshot.docs[0]
+
+            if(onCompletionFunc){
+                onCompletionFunc()
+            }
+        }else if(snapshot.size > 1){
+            console.warn("WHUT DA HELLLLLL There are multiple users with the email '" + email + "' XDDDDD")
+        }else{
+            console.warn("WHUT DA HELLLLLL We couldn't find a user with the email '" + email + "' XDDDDD")
+        }
+    })
 }
 
-function getLocalUser(){
+function getLocalUserData(){
     return localUser
 }
 
-async function loadProspects(){
+function loadProspectsData(onCompletionFunc){
     if(localUser != null){
-        const qry = query(
-            usersCol,
-            where("country", "==", localUser.country)
-                .where("state", "==", localUser.state)
-                .where("id", "!=", localUser.id)
-        )
+        usersCol.where("country", "==", localUser.country)
+            .where("state", "==", localUser.state)
+            .where("id", "!=", localUser.id).get().then((snapshot) => {
+                const validProspects = []
 
-        const snapshot = await getDocs(qry)
-        const validProspects = []
+                snapshot.foreach((otherUser) => {
+                    assignDistanceFromLocalUser(localUser, otherUser)
+        
+                    if(otherUser.distance <= MAX_DISTANCE_MI){
+                        assignProspectScore(localUser, otherUser)
+                        
+                        if(!isNaN(otherUser.score)){
+                            validProspects.push(otherUser)
+                        }
+                    }
+                })
+        
+                sortedProspects = validProspects.sort((user1, user2) => user2.score - user1.score)
 
-        snapshot.foreach((otherUser) => {
-            assignDistanceFromLocalUser(localUser, otherUser)
-
-            if(otherUser.distance <= MAX_DISTANCE_MI){
-                assignProspectScore(localUser, otherUser)
-                
-                if(!isNaN(otherUser.score)){
-                    validProspects.push(otherUser)
+                if(onCompletionFunc){
+                    onCompletionFunc()
                 }
-            }
-        })
-
-        sortedProspects = validProspects.sort((user1, user2) => user2.score - user1.score)
-        return sortedProspects
+            })
     }else{
         console.warn("Don't load prospects before loading the local user")
-        return null
     }
 }
 
-function getProspects(){
+function getProspectsData(){
     return sortedProspects
 }
 
-async function addLocalUserToDB(newData){
-    localUser = await addDoc(usersCol, newData)
+function addLocalUserToDB(newData){
+    localUser = newData
+    usersCol.add(newData)
 }
 
-async function updateLocalUserInDB(newData){
-    localUser = await setDoc(doc(docDB, "users", localUser.id), newData)
+function updateLocalUserInDB(newData){
+    for(let field in newData){
+        localUser[field] = newData[field]
+    }
+    usersCol.doc(localUser.id).update(newData)
 }
 
 function getPFPRef(user){
@@ -87,6 +92,6 @@ function downloadPFPToImage(user, imageElement){
 }
 
 export {
-    loadLocalUser, getLocalUser, loadProspects, getProspects,
+    loadLocalUserData, getLocalUserData, loadProspectsData, getProspectsData,
     addLocalUserToDB, updateLocalUserInDB, uploadLocalUserPFP, downloadPFPToImage
 }
