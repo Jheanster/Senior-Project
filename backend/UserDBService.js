@@ -1,11 +1,14 @@
-import { docDB } from "../firebase"
+import { docDB, fileDB } from "../firebase"
 import { assignProspectScore } from "./ProspectScoreService"
 import { assignDistanceFromLocalUser } from "./UserLocationService"
 import { collection, doc, getDoc, getDocs, addDoc, setDoc, query, where } from "firebase/compat/firestore"
 
 const MAX_DISTANCE_MI = 25
+const PFP_STORAGE_PATH = "pfps/pfp-{0}.png"
 
 const usersCol = collection(docDB, "users")
+const rootRef = fileDB.ref()
+
 var localUser = null
 var sortedProspects = null
 
@@ -69,4 +72,23 @@ async function updateLocalUserInDB(newData){
     localUser = await setDoc(doc(docDB, "users", localUser.id), newData)
 }
 
-export { loadLocalUser, getLocalUser, loadProspects, getProspects, addLocalUserToDB, updateLocalUserInDB }
+function localUserPFPRef(){
+    return fileDB.ref(PFP_STORAGE_PATH.format(localUser.id))
+}
+
+function uploadLocalUserPFP(newPFPFile, onCompletionFunc){
+    localUserPFPRef().put(newPFPFile).then(() => {
+        if(onCompletionFunc){
+            onCompletionFunc()
+        }
+    })
+}
+
+function downloadLocalUserPFP(imageElement){
+    imageElement.setAttribute("src", localUserPFPRef().getDownloadURL())
+}
+
+export {
+    loadLocalUser, getLocalUser, loadProspects, getProspects,
+    addLocalUserToDB, updateLocalUserInDB, uploadLocalUserPFP, downloadLocalUserPFP
+}
