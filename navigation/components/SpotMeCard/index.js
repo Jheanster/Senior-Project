@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     // Changes how the profile will look on screen
     card: {
         width: '95%',
-        height: '95%',
+        height: '75%',
         borderRadius: 10,
 
         // Literally search up 'react native shadow generator', gives a slider to change how the shadow looks
@@ -56,19 +56,18 @@ const styles = StyleSheet.create({
 
     cardInner:{
         padding: 10,
-        backgroundColor: 'red',
     },
 
     name:{
         fontSize: 30,
-        color:'black',
+        color:'white',
         fontWeight:'bold',
     },
 
     bio: {
         fontSize: 15,
         lineHeight: 25,
-        color:'black',
+        color:'white',
     },
 
   
