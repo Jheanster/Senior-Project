@@ -5,6 +5,7 @@ import Animated, { useSharedValue, useAnimatedStyle, withSpring, useAnimatedGest
 import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler'
 import Card from '../components/SpotMeCard'
 import users from '../users'
+import { getProspects } from '../../backend/UserDBService'
 
 
 const ROTATION = 60;
@@ -14,7 +15,7 @@ function HomeScreen() {
 
     // Set the current user in the stack of cards
     const [currentIndex,setCurrentIndex] = useState(0);
-    const currentProfile = users[currentIndex];
+    const currentProfile = getProspects()[currentIndex]
 
     const[nextIndex, setNextIndex] = useState(currentIndex + 1);
     const nextProfile = users[nextIndex];

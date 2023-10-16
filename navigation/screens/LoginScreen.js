@@ -3,6 +3,7 @@ import React , { useEffect, useState } from 'react'
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { auth } from '../../firebase'
 import MainContainer from '../MainContainer'
+import { loadLocalUser, loadProspects } from '../../backend/UserDBService'
 
 
  function LoginScreen({navigation}) {
@@ -35,6 +36,8 @@ import MainContainer from '../MainContainer'
         .then(userCredentials => {
             const user = userCredentials.user;
             console.log('Logged in with:', user.email);
+            loadLocalUser(user.email);
+            loadProspects();
         })
         .catch(error => alert(error.message))
     }
