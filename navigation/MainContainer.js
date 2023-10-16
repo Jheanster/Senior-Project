@@ -7,6 +7,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import HomeScreen from './screens/HomeScreen'
 import DetailsScreen from './screens/DetailsScreen'
 import SettingsScreen from './screens/SettingsScreen'
+import ChatScreen from './screens/ChatScreen'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './screens/LoginScreen';
 
@@ -22,7 +23,7 @@ const Stack = createNativeStackNavigator();
 
 function MainApp(){
     return(
-        <Tab.Navigator
+        <Tab.Navigator 
             initialRouteName={homeName}
             screenOptions={({route}) => ({
                 tabBarIcon: ({focused, color, size}) => {
@@ -39,6 +40,8 @@ function MainApp(){
 
                     return<Ionicons name={iconName} size={size} color={color}/>
                 },
+
+                headerShown: false,
             })}>
 
             <Tab.Screen name={homeName} component={HomeScreen}/>
@@ -52,11 +55,13 @@ function MainApp(){
 
 
 export default function MainContainer(){
+    const user = false;
     return(
         <NavigationContainer>
             <Stack.Navigator screenOptions={{headerShown: false}}>
                 <Stack.Screen name='Login' component={LoginScreen}/>
                 <Stack.Screen name='MainApp' component={MainApp}/>
+                <Stack.Screen name='Chat' component={ChatScreen}/>
             </Stack.Navigator>
         </NavigationContainer>
     )
