@@ -8,6 +8,7 @@ import users from '../users'
 
 
 const ROTATION = 60;
+const SWIPE_THRESHOLD = 1500;
 
 function HomeScreen() {
 
@@ -42,11 +43,20 @@ function HomeScreen() {
     const nextCardStyle = useAnimatedStyle(() => ({
         transform: [
             {
-                scale: interpolate(translateX.value, 
+                scale: interpolate(
+                    translateX.value, 
                     [-hiddenTranslateX,0,hiddenTranslateX],
-                    [1,0.5,1]),
+                    // Values that change: Full scale if swipe left or right, scaled to .8 if no swipe
+                    [1,0.8,1]),
             },
-    ],
+        ],
+        opacity: interpolate(
+            translateX.value, 
+            [-hiddenTranslateX,0,hiddenTranslateX],
+            // Values that change: Full scale if swipe left or right, scaled to .8 if no swipe
+            [1,0.5,1]),
+
+        
 
     }));
 
@@ -60,8 +70,13 @@ function HomeScreen() {
             // console.log('Touch x: ', event.translationX);
         },
 
-        onEnd: () => {
+        onEnd: (event) => {
             // console.log('Touch ended');
+            if (Math.abs(event.velocityX) < SWIPE_THRESHOLD ) { 
+                translateX.value = withSpring(0);
+                return;
+            } 
+
         }
     });
 
