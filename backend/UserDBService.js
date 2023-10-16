@@ -74,19 +74,19 @@ function getPFPRef(user){
     return fileDB.ref(PFP_STORAGE_PATH.format(user.id))
 }
 
-function uploadPFP(user, newPFPFile, onCompletionFunc){
-    getPFPRef(user).put(newPFPFile).then(() => {
+function uploadLocalUserPFP(newPFPFile, onCompletionFunc){
+    getPFPRef(localUser).put(newPFPFile).then(() => {
         if(onCompletionFunc){
             onCompletionFunc()
         }
     })
 }
 
-function downloadPFP(user, imageElement){
+function downloadPFPToImage(user, imageElement){
     imageElement.setAttribute("src", getPFPRef(user).getDownloadURL())
 }
 
 export {
     loadLocalUser, getLocalUser, loadProspects, getProspects,
-    addLocalUserToDB, updateLocalUserInDB, uploadPFP, downloadPFP
+    addLocalUserToDB, updateLocalUserInDB, uploadLocalUserPFP, downloadPFPToImage
 }
