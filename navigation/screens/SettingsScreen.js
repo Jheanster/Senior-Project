@@ -4,13 +4,6 @@ import { auth } from '../../firebase'
 
 export default function SettingsScreen({ navigation }){
 
-    const handleSignOut = () => {
-        auth.signOut()
-        .then(() => {
-            navigation.replace("Login")
-        })
-        .catch(error => alert(error.message))
-    }
 
     return(
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>

@@ -2,42 +2,14 @@ import { useNavigation } from '@react-navigation/core'
 import React , { useEffect, useState } from 'react'
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { auth } from '../../firebase'
-import MainContainer from '../MainContainer'
+import useAuth from '../../hooks/useAuth';
 
 
  function LoginScreen({navigation}) {
+    const { handleLogin, handleSignUp } = useAuth();
     const[email,setEmail] = useState('')
     const[password,setPassword] = useState('')
 
-
-    useEffect(() => {
-        const unsubcribe =  auth.onAuthStateChanged(user => {
-            if (user) {
-                navigation.navigate('MainApp')
-            }
-        })
-
-        return unsubcribe
-    }, [])
-
-    const handleSignUp = () => { 
-        
-        auth.createUserWithEmailAndPassword(email,password)
-        .then(userCredentials => {
-            const user = userCredentials.user;
-            console.log('Registered with:',user.email);
-        })
-        .catch(error => alert(error.message))
-    }
-
-    const handleLogin = () => {
-        auth.signInWithEmailAndPassword(email,password)
-        .then(userCredentials => {
-            const user = userCredentials.user;
-            console.log('Logged in with:', user.email);
-        })
-        .catch(error => alert(error.message))
-    }
 
     return (
         
@@ -76,10 +48,7 @@ import MainContainer from '../MainContainer'
                 <Text style={styles.buttonOutlineText}>Register</Text>
             </TouchableOpacity>
 
-
         </View>
-
-
         </KeyboardAvoidingView>
     )
 }

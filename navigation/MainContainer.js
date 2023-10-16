@@ -10,6 +10,7 @@ import SettingsScreen from './screens/SettingsScreen'
 import ChatScreen from './screens/ChatScreen'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './screens/LoginScreen';
+import { AuthProvider } from '../hooks/useAuth';
 
 // Screen names
 const homeName = 'Home';
@@ -58,11 +59,13 @@ export default function MainContainer(){
     const user = false;
     return(
         <NavigationContainer>
-            <Stack.Navigator screenOptions={{headerShown: false}}>
-                <Stack.Screen name='Login' component={LoginScreen}/>
-                <Stack.Screen name='MainApp' component={MainApp}/>
-                <Stack.Screen name='Chat' component={ChatScreen}/>
-            </Stack.Navigator>
+            <AuthProvider>
+                <Stack.Navigator screenOptions={{headerShown: false}}>
+                    <Stack.Screen name='Login' component={LoginScreen}/>
+                    <Stack.Screen name='MainApp' component={MainApp}/>
+                    <Stack.Screen name='Chat' component={ChatScreen}/>
+                </Stack.Navigator>
+            </AuthProvider>
         </NavigationContainer>
     )
 }
