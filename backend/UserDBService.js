@@ -19,7 +19,8 @@ async function loadLocalUser(email){
         localUser = snapshot.data()
         return localUser
     }else{
-        console.log("WHUT DA HELLLLLL We couldn't find a user with the email'" + email + "' XDDDDD")
+        console.warn("WHUT DA HELLLLLL We couldn't find a user with the email'" + email + "' XDDDDD")
+        return null
     }
 }
 
