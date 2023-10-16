@@ -59,7 +59,7 @@ export default function MainContainer(){
     return(
         <NavigationContainer>
             <Stack.Navigator screenOptions={{headerShown: false}}>
-                <Stack.Screen name='Login' component={LoginScreen}/>
+                {/* <Stack.Screen name='Login' component={LoginScreen}/> */}
                 <Stack.Screen name='MainApp' component={MainApp}/>
                 <Stack.Screen name='Chat' component={ChatScreen}/>
             </Stack.Navigator>

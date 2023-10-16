@@ -1,11 +1,11 @@
 import 'react-native-gesture-handler'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Pressable, StyleSheet, View, Text, useWindowDimensions} from 'react-native'
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, useAnimatedGestureHandler, useDerivedValue, interpolate } from 'react-native-reanimated'
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, useAnimatedGestureHandler, useDerivedValue, interpolate, runOnJS } from 'react-native-reanimated'
 import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler'
+
 import Card from '../components/SpotMeCard'
-import users from '../users'
-import { getProspects } from '../../backend/UserDBService'
+import users from '../../assets/data/users'
 
 
 const ROTATION = 60;
@@ -15,7 +15,7 @@ function HomeScreen() {
 
     // Set the current user in the stack of cards
     const [currentIndex,setCurrentIndex] = useState(0);
-    const currentProfile = getProspects()[currentIndex]
+    const currentProfile = users[currentIndex];
 
     const[nextIndex, setNextIndex] = useState(currentIndex + 1);
     const nextProfile = users[nextIndex];
@@ -78,25 +78,40 @@ function HomeScreen() {
                 return;
             } 
 
+            // Swipes away the card depending on direction
+            translateX.value = withSpring(
+                hiddenTranslateX * Math.sign(event.velocityX),
+                {},
+                () => runOnJS(setCurrentIndex)(currentIndex + 1)
+            );
         }
     });
+
+    useEffect(() => {
+        translateX.value = 0;
+        setNextIndex(currentIndex + 1);
+    }, [currentIndex])
 
     return (
         // View for the first page
         <GestureHandlerRootView style={styles.container}>
+            { nextProfile && (
             <View style={styles.nextCardContainer}>
                 <Animated.View style={[styles.animatedCard,nextCardStyle]}>
                     <Card user={nextProfile}/>
                 </Animated.View>
             </View>
-           
-        
-            <PanGestureHandler onGestureEvent={gestureHandler}>
+            )}
+
+            {currentProfile && (
+                <PanGestureHandler onGestureEvent={gestureHandler}>
                 <Animated.View style={[styles.animatedCard,cardStyle]}>
                     {/* Each card is a different profile. The general card layout can be changed in navigation/components/SpotMeCard/index.js*/}
                     <Card user={currentProfile}/>
                 </Animated.View>
             </PanGestureHandler>
+            )}
+            
         </GestureHandlerRootView>
        
     )
