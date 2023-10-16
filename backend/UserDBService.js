@@ -50,8 +50,7 @@ async function loadProspects(){
             }
         })
 
-        validProspects.sort((user1, user2) => user2.score - user1.score)
-        sortedProspects = validProspects
+        sortedProspects = validProspects.sort((user1, user2) => user2.score - user1.score)
         return sortedProspects
     }else{
         console.warn("Don't load prospects before loading the local user")
