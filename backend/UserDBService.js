@@ -70,23 +70,23 @@ async function updateLocalUserInDB(newData){
     localUser = await setDoc(doc(docDB, "users", localUser.id), newData)
 }
 
-function localUserPFPRef(){
-    return fileDB.ref(PFP_STORAGE_PATH.format(localUser.id))
+function getPFPRef(user){
+    return fileDB.ref(PFP_STORAGE_PATH.format(user.id))
 }
 
-function uploadLocalUserPFP(newPFPFile, onCompletionFunc){
-    localUserPFPRef().put(newPFPFile).then(() => {
+function uploadPFP(user, newPFPFile, onCompletionFunc){
+    getPFPRef(user).put(newPFPFile).then(() => {
         if(onCompletionFunc){
             onCompletionFunc()
         }
     })
 }
 
-function downloadLocalUserPFP(imageElement){
-    imageElement.setAttribute("src", localUserPFPRef().getDownloadURL())
+function downloadPFP(user, imageElement){
+    imageElement.setAttribute("src", getPFPRef(user).getDownloadURL())
 }
 
 export {
     loadLocalUser, getLocalUser, loadProspects, getProspects,
-    addLocalUserToDB, updateLocalUserInDB, uploadLocalUserPFP, downloadLocalUserPFP
+    addLocalUserToDB, updateLocalUserInDB, uploadPFP, downloadPFP
 }
