@@ -7,8 +7,6 @@ const MAX_DISTANCE_MI = 25
 const PFP_STORAGE_PATH = "pfps/pfp-{0}.png"
 
 const usersCol = collection(docDB, "users")
-const rootRef = fileDB.ref()
-
 var localUser = null
 var sortedProspects = null
 
