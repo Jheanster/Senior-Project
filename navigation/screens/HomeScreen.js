@@ -6,19 +6,21 @@ import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-
 
 import Card from '../components/SpotMeCard'
 import users from '../../assets/data/users'
+import { getProspectsData } from '../../backend/UserDBService'
 
 
 const ROTATION = 60;
 const SWIPE_THRESHOLD = 1500;
 
 function HomeScreen() {
+    const prospects = getProspectsData()
 
     // Set the current user in the stack of cards
     const [currentIndex,setCurrentIndex] = useState(0);
-    const currentProfile = users[currentIndex];
+    const currentProfile = prospects[currentIndex];
 
     const[nextIndex, setNextIndex] = useState(currentIndex + 1);
-    const nextProfile = users[nextIndex];
+    const nextProfile = prospects[nextIndex];
 
 
     const { width: screenWidth } = useWindowDimensions();

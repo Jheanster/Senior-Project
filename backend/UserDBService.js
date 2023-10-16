@@ -12,7 +12,7 @@ var sortedProspects = null
 function loadLocalUserData(email, onCompletionFunc){
     usersCol.where("email", "==", email).get().then((snapshot) => {
         if(snapshot.size == 1){
-            localUser = snapshot.docs[0]
+            localUser = snapshot.docs[0].data()
 
             if(onCompletionFunc){
                 onCompletionFunc()
@@ -32,11 +32,10 @@ function getLocalUserData(){
 function loadProspectsData(onCompletionFunc){
     if(localUser != null){
         usersCol.where("country", "==", localUser.country)
-            .where("state", "==", localUser.state)
-            .where("id", "!=", localUser.id).get().then((snapshot) => {
+            .where("state", "==", localUser.state).get().then((snapshot) => {
                 const validProspects = []
 
-                snapshot.foreach((otherUser) => {
+                snapshot.forEach((otherUser) => {
                     assignDistanceFromLocalUser(localUser, otherUser)
         
                     if(otherUser.distance <= MAX_DISTANCE_MI){

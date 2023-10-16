@@ -14,7 +14,7 @@ import { loadLocalUserData, loadProspectsData } from '../../backend/UserDBServic
     useEffect(() => {
         const unsubcribe =  auth.onAuthStateChanged(user => {
             if (user) {
-                navigation.navigate('MainApp')
+                loadLocalUserData(user.email, () => loadProspectsData(() => navigation.navigate('MainApp')));
             }
         })
 
@@ -26,7 +26,7 @@ import { loadLocalUserData, loadProspectsData } from '../../backend/UserDBServic
         auth.createUserWithEmailAndPassword(email,password)
         .then(userCredentials => {
             const user = userCredentials.user;
-            console.log('Registered with:',user.email);
+            console.log('Registered with:', user.email);
         })
         .catch(error => alert(error.message))
     }
@@ -36,7 +36,6 @@ import { loadLocalUserData, loadProspectsData } from '../../backend/UserDBServic
         .then(userCredentials => {
             const user = userCredentials.user;
             console.log('Logged in with:', user.email);
-            loadLocalUserData(user.email, () => loadProspectsData());
         })
         .catch(error => alert(error.message))
     }
