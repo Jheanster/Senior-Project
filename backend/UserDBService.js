@@ -3,20 +3,26 @@ import { assignProspectScore } from "./ProspectScoreService"
 import { assignDistanceFromLocalUser } from "./UserLocationService"
 
 const MAX_DISTANCE_MI = 25
-const PFP_STORAGE_PATH = "pfps/pfp-{0}.png"
 
 const usersCol = docDB.collection("users")
 var localUser = null
 var sortedProspects = null
 
+function getUserDataFromDoc(userDoc){
+    const userData = userDoc.data()
+    userData.id = userDoc.id
+    return userData
+}
+
 function loadLocalUserData(email, onCompletionFunc){
     usersCol.where("email", "==", email).get().then((snapshot) => {
         if(snapshot.size == 1){
-            localUser = snapshot.docs[0].data()
-
-            if(onCompletionFunc){
-                onCompletionFunc()
-            }
+            localUser = getUserDataFromDoc(snapshot.docs[0])
+            assignPFP(localUser, () => {
+                if(onCompletionFunc){
+                    onCompletionFunc()
+                }
+            })
         }else if(snapshot.size > 1){
             console.warn("WHUT DA HELLLLLL There are multiple users with the email '" + email + "' XDDDDD")
         }else{
@@ -35,12 +41,13 @@ function loadProspectsData(onCompletionFunc){
             .where("state", "==", localUser.state).get().then((snapshot) => {
                 const validProspects = []
 
-                snapshot.forEach((otherUser) => {
+                snapshot.forEach((otherUserDoc) => {
+                    const otherUser = getUserDataFromDoc(otherUserDoc)
                     assignDistanceFromLocalUser(localUser, otherUser)
-        
+
                     if(otherUser.distance <= MAX_DISTANCE_MI){
                         assignProspectScore(localUser, otherUser)
-                        
+
                         if(!isNaN(otherUser.score)){
                             validProspects.push(otherUser)
                         }
@@ -49,9 +56,15 @@ function loadProspectsData(onCompletionFunc){
         
                 sortedProspects = validProspects.sort((user1, user2) => user2.score - user1.score)
 
-                if(onCompletionFunc){
-                    onCompletionFunc()
-                }
+                let numPFPsLoaded = 0
+                sortedProspects.forEach((prospect) => {
+                    assignPFP(prospect, () => {
+                        numPFPsLoaded++
+                        if(numPFPsLoaded == sortedProspects.length && onCompletionFunc){
+                            onCompletionFunc()
+                        }
+                    })
+                })
             })
     }else{
         console.warn("Don't load prospects before loading the local user")
@@ -75,7 +88,7 @@ function updateLocalUserInDB(newData){
 }
 
 function getPFPRef(user){
-    return fileDB.ref(PFP_STORAGE_PATH.format(user.id))
+    return fileDB.ref("pfps/pfp-" + user.id + ".png")
 }
 
 function uploadLocalUserPFP(newPFPFile, onCompletionFunc){
@@ -86,11 +99,25 @@ function uploadLocalUserPFP(newPFPFile, onCompletionFunc){
     })
 }
 
-function downloadPFPToImage(user, imageElement){
-    imageElement.setAttribute("src", getPFPRef(user).getDownloadURL())
+function assignPFP(user, onCompletionFunc){
+    getPFPRef(user).getDownloadURL().then(
+        (url) => {
+            user.pfp = url
+            if(onCompletionFunc){
+                onCompletionFunc(true)
+            }
+        },
+        () => {
+            user.pfp = ""
+            console.warn("Failed to get PFP URL for " + user.name)
+            if(onCompletionFunc){
+                onCompletionFunc(false)
+            }
+        }
+    )
 }
 
 export {
     loadLocalUserData, getLocalUserData, loadProspectsData, getProspectsData,
-    addLocalUserToDB, updateLocalUserInDB, uploadLocalUserPFP, downloadPFPToImage
+    addLocalUserToDB, updateLocalUserInDB, uploadLocalUserPFP
 }

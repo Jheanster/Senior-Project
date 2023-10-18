@@ -35,7 +35,7 @@ function assignProspectScore(localUser, otherUser){
     }
     
     let noCommonTT = true
-    for(ttProp in TRAINING_TYPE_PROPS){
+    TRAINING_TYPE_PROPS.forEach((ttProp) => {
         if(localUser[ttProp]){
             if(otherUser[ttProp]){
                 noCommonTT = false
@@ -43,13 +43,13 @@ function assignProspectScore(localUser, otherUser){
                 score -= MISSING_TRAINING_TYPE_WEIGHT
             }
         }
-    }
+    })
 
     if(noCommonTT){
         return NaN
     }
 
-    for(dayProp in IDEAL_SCHEDULE_DAY_PROPS){
+    IDEAL_SCHEDULE_DAY_PROPS.forEach((dayProp) => {
         const localResting = localUser[dayProp] == -1
         const otherResting = otherUser[dayProp] == -1
 
@@ -59,9 +59,9 @@ function assignProspectScore(localUser, otherUser){
             const timeDiff = Math.abs(localUser[dayProp] - otherUser[dayProp])
             score -= timeDiff/SECS_PER_DAY*MAX_ONE_DAY_SCHEDULE_DIFF_WEIGHT
         }
-    }
+    })
 
-    return score
+    otherUser.score = score
 }
 
 export { assignProspectScore }

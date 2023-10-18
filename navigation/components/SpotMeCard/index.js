@@ -1,25 +1,20 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, ImageBackground } from 'react-native'
+import { StyleSheet, Text, View, ImageBackground } from 'react-native'
 
 
 const Card = ( props ) => {
-    const {name, image, bio } = props.user;
     return (
         <View style={styles.card}>
-        <ImageBackground
-            source={{
-            uri: image,
-            }}
-            style={styles.image}
-        >
-            <View style={styles.cardInner}>
-                <Text style={styles.name}>{name}</Text>
-                <Text style={styles.bio}>
-                    {bio}
-                </Text>
-            </View>
-        </ImageBackground>
-    </View>
+            <ImageBackground
+                source={{uri: props.user.pfp}}
+                style={styles.pfp}
+            >
+                <View style={styles.cardInner}>
+                    <Text style={styles.name}>{props.user.name}</Text>
+                    <Text style={styles.bio}>{props.user.bio}</Text>
+                </View>
+            </ImageBackground>
+        </View>
     )
 }
 
@@ -28,7 +23,7 @@ export default Card;
 
 const styles = StyleSheet.create({
 
-    image: {
+    pfp: {
         width: '100%',
         height: '100%',
         borderRadius: 10,

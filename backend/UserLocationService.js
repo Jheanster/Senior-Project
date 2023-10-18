@@ -1,8 +1,5 @@
 const GOOGLE_MAPS_API_KEY = "AIzaSyDumVQymOyGdL2cLDRjiq-9lO2kMRdEgTE"
-
 const GEOCODING_URL = "https://maps.googleapis.com/maps/api/geocode/json"
-const GEOCODING_PARAMS = "address={0}&key=" + GOOGLE_MAPS_API_KEY
-
 const EARTH_RADIUS_MI = 3963.19
 
 function assignCoordsFromAddress(user, onCompletionFunc){
@@ -29,7 +26,7 @@ function assignCoordsFromAddress(user, onCompletionFunc){
         }
     };
 
-    http.send(GEOCODING_PARAMS.format(fullAddress))
+    http.send("address=" + fullAddress + "&key=" + GOOGLE_MAPS_API_KEY)
 }
 
 function degToRad(x){
