@@ -3,7 +3,7 @@ import React , { useEffect, useState } from 'react'
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { auth } from '../../firebase'
 import MainContainer from '../MainContainer'
-import { loadLocalUserData, loadProspectsData } from '../../backend/UserDBService'
+import {addLocalUserToDB, loadLocalUserData, loadProspectsData} from '../../backend/UserDBService'
 
 
  function LoginScreen({navigation}) {

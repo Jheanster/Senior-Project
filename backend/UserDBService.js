@@ -8,7 +8,7 @@ const usersCol = docDB.collection("users")
 var localUser = null
 var sortedProspects = null
 
-function getUserDataFromDoc(userDoc){
+function getUserDataFromDoc(userDoc) {
     const userData = userDoc.data()
     userData.id = userDoc.id
     return userData
@@ -16,17 +16,17 @@ function getUserDataFromDoc(userDoc){
 
 function loadLocalUserData(email, onCompletionFunc){
     usersCol.where("email", "==", email).get().then((snapshot) => {
-        if(snapshot.size == 1){
+        if(snapshot.size === 1) {
             localUser = getUserDataFromDoc(snapshot.docs[0])
             assignPFP(localUser, () => {
                 if(onCompletionFunc){
                     onCompletionFunc()
                 }
             })
-        }else if(snapshot.size > 1){
-            console.warn("WHUT DA HELLLLLL There are multiple users with the email '" + email + "' XDDDDD")
-        }else{
-            console.warn("WHUT DA HELLLLLL We couldn't find a user with the email '" + email + "' XDDDDD")
+        } else if (snapshot.size > 1) {
+            console.warn("Error: There are multiple users with the email: '" + email + "'")
+        } else {
+            console.warn("Error: We couldn't find a user with the email: '" + email + "'")
         }
     })
 }
@@ -36,7 +36,7 @@ function getLocalUserData(){
 }
 
 function loadProspectsData(onCompletionFunc){
-    if(localUser != null){
+    if(localUser != null) {
         usersCol.where("country", "==", localUser.country)
             .where("state", "==", localUser.state).get().then((snapshot) => {
                 const validProspects = []
@@ -45,10 +45,10 @@ function loadProspectsData(onCompletionFunc){
                     const otherUser = getUserDataFromDoc(otherUserDoc)
                     assignDistanceFromLocalUser(localUser, otherUser)
 
-                    if(otherUser.distance <= MAX_DISTANCE_MI){
+                    if(otherUser.distance <= MAX_DISTANCE_MI) {
                         assignProspectScore(localUser, otherUser)
 
-                        if(!isNaN(otherUser.score)){
+                        if(!isNaN(otherUser.score)) {
                             validProspects.push(otherUser)
                         }
                     }
@@ -60,14 +60,14 @@ function loadProspectsData(onCompletionFunc){
                 sortedProspects.forEach((prospect) => {
                     assignPFP(prospect, () => {
                         numPFPsLoaded++
-                        if(numPFPsLoaded == sortedProspects.length && onCompletionFunc){
+                        if (numPFPsLoaded === sortedProspects.length && onCompletionFunc){
                             onCompletionFunc()
                         }
                     })
                 })
             })
-    }else{
-        console.warn("Don't load prospects before loading the local user")
+    } else {
+        console.warn("Error: Trying to load prospects before loading the local user")
     }
 }
 
@@ -77,11 +77,11 @@ function getProspectsData(){
 
 function addLocalUserToDB(newData){
     localUser = newData
-    usersCol.add(newData)
+    usersCol.add(newData).then(r => console.log(r.id))
 }
 
 function updateLocalUserInDB(newData){
-    for(let field in newData){
+    for (let field in newData) {
         localUser[field] = newData[field]
     }
     usersCol.doc(localUser.id).update(newData)
