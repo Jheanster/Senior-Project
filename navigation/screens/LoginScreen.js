@@ -1,9 +1,7 @@
 import { useNavigation } from '@react-navigation/core'
 import React , { useEffect, useState } from 'react'
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import { auth } from '../../firebase'
-import MainContainer from '../MainContainer'
-import {addLocalUserToDB, loadLocalUserData, loadProspectsData} from '../../backend/UserDBService'
+import {registerUser, loginUser} from '../../backend/UserDBService'
 
 
  function LoginScreen({navigation}) {
@@ -11,7 +9,7 @@ import {addLocalUserToDB, loadLocalUserData, loadProspectsData} from '../../back
     const[password,setPassword] = useState('')
 
 
-    useEffect(() => {
+    /*useEffect(() => {
         const unsubcribe =  auth.onAuthStateChanged(user => {
             if (user) {
                 loadLocalUserData(user.email, () => loadProspectsData(() => navigation.navigate('MainApp')));
@@ -19,30 +17,41 @@ import {addLocalUserToDB, loadLocalUserData, loadProspectsData} from '../../back
         })
 
         return unsubcribe
-    }, [])
+    }, [])*/
 
-    const handleSignUp = () => { 
-        
-        auth.createUserWithEmailAndPassword(email,password)
-        .then(userCredentials => {
-            const user = userCredentials.user;
-            console.log('Registered with:', user.email);
-        })
-        .catch(error => alert(error.message))
+    const handleSignUp = () => {
+
+        const data = {
+            email: email,
+            password: password,
+        }
+
+        registerUser(data)
+            .then(response => {
+                console.log("Successfully added user login with email: '" + response.user.email + "'")
+            })
+            .catch(err => {
+                console.log(err)
+            })
     }
 
     const handleLogin = () => {
-        auth.signInWithEmailAndPassword(email,password)
-        .then(userCredentials => {
-            const user = userCredentials.user;
-            console.log('Logged in with:', user.email);
-        })
-        .catch(error => alert(error.message))
+
+        const data = {
+            email: email,
+            password: password,
+        }
+
+        loginUser(data)
+            .then(response => {
+                console.log("Successfully logged in with: '" + response.user.email + "'")
+            })
+            .catch(err => {
+                console.log(err);
+            })
     }
 
     return (
-        
-
         <KeyboardAvoidingView
             style={styles.container}
             behavior="padding"
