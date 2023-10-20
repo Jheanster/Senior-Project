@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/core'
 import React , { useEffect, useState } from 'react'
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image } from 'react-native'
 import { auth } from '../../firebase'
 import MainContainer from '../MainContainer'
 import { loadLocalUserData, loadProspectsData } from '../../backend/UserDBService'
@@ -48,6 +48,12 @@ import { loadLocalUserData, loadProspectsData } from '../../backend/UserDBServic
             behavior="padding"
         >
         <View style={styles.inputContainer}>
+            <Image
+                style={{width: 250, alignSelf: 'center'}}
+                resizeMode='contain'
+                source={require('../../assets/images/SpotMeLogo.png')}
+                
+            />
             <TextInput
                 placeholder='Email'
                 value={email}
@@ -63,6 +69,14 @@ import { loadLocalUserData, loadProspectsData } from '../../backend/UserDBServic
             />
         </View>
 
+        <View>
+            <Text 
+                style={{color: 'white', padding: 10}}
+            >
+                Forgot Password    
+            </Text>
+        </View>
+
         <View style={styles.buttonContainer}>
             <TouchableOpacity
                 onPress={handleLogin}
@@ -76,8 +90,6 @@ import { loadLocalUserData, loadProspectsData } from '../../backend/UserDBServic
             >
                 <Text style={styles.buttonOutlineText}>Register</Text>
             </TouchableOpacity>
-
-
         </View>
 
 
