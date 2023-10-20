@@ -15,19 +15,6 @@ import { registerUser, loginUser, loadLocalUserData, loadProspectsData } from '.
     const[password,setPassword] = useState('')
     const [loading,setLoading] = useState(false)
 
-
-
-    useEffect(() => {
-        const unsubcribe =  auth.onAuthStateChanged(user => {
-            if (user) {
-                loadLocalUserData(user.email, () => loadProspectsData(() => navigation.navigate('MainApp')));
-            }
-        })
-
-        return unsubcribe
-    }, [])
-
-
     const startLoadingImage = () => {
         rotateValueHolder.setValue(0)
         Animated.timing(rotateValueHolder,{
