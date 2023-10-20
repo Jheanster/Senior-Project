@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react'
 import { Pressable, StyleSheet, View, Text, useWindowDimensions} from 'react-native'
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, useAnimatedGestureHandler, useDerivedValue, interpolate, runOnJS } from 'react-native-reanimated'
 import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler'
+import { StatusBar } from 'expo-status-bar';
+
 
 import Card from '../components/SpotMeCard'
 import users from '../../assets/data/users'
@@ -113,7 +115,7 @@ function HomeScreen() {
                 </Animated.View>
             </PanGestureHandler>
             )}
-            
+            <StatusBar translucent barStyle='light-color'/>
         </GestureHandlerRootView>
        
     )

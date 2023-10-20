@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/core'
 import React , { useEffect, useState } from 'react'
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image } from 'react-native'
+import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, StatusBar } from 'react-native'
 import { auth } from '../../firebase'
 import MainContainer from '../MainContainer'
 import { loadLocalUserData, loadProspectsData } from '../../backend/UserDBService'
@@ -91,8 +91,7 @@ import { loadLocalUserData, loadProspectsData } from '../../backend/UserDBServic
                 <Text style={styles.buttonOutlineText}>Register</Text>
             </TouchableOpacity>
         </View>
-
-
+        <StatusBar barStyle="light-content" backgroundColor="#6a51ae" />
         </KeyboardAvoidingView>
     )
 }

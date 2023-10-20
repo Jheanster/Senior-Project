@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { auth } from '../../firebase'
+import { StatusBar } from 'expo-status-bar';
+
 
 export default function SettingsScreen({ navigation }){
 
@@ -21,6 +23,7 @@ export default function SettingsScreen({ navigation }){
             >
                 <Text style={styles.buttonText}>Sign Out</Text>
             </TouchableOpacity>
+            <StatusBar translucent barStyle='light-color'/>
         </View>
     )
 }
