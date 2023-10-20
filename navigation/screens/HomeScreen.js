@@ -17,11 +17,10 @@ function HomeScreen() {
 
     // Set the current user in the stack of cards
     const [currentIndex,setCurrentIndex] = useState(0);
-    const currentProfile = prospects != null && currentIndex < prospects.size ? prospects[currentIndex] : null;
+    const currentProfile = prospects != null && currentIndex < prospects.length ? prospects[currentIndex] : null;
 
     const[nextIndex, setNextIndex] = useState(currentIndex + 1);
-    const nextProfile = prospects != null && currentIndex < prospects.size - 1 ? prospects[nextIndex] : null;
-
+    const nextProfile = prospects != null && currentIndex < prospects.length - 1 ? prospects[nextIndex] : null;
 
     const { width: screenWidth } = useWindowDimensions();
     const hiddenTranslateX = 2 * screenWidth;
