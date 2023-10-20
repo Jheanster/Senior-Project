@@ -17,11 +17,11 @@ function HomeScreen() {
 
     // Set the current user in the stack of cards
     const [currentIndex,setCurrentIndex] = useState(0);
-    const currentProfile = prospects != null && !prospects.empty ? prospects[currentIndex] : null;
+    const currentProfile = prospects != null && currentIndex < prospects.size ? prospects[currentIndex] : null;
 
     const[nextIndex, setNextIndex] = useState(currentIndex + 1);
-    const nextProfile = prospects != null && prospects.size > 0 ? prospects[nextIndex] : null;
-    
+    const nextProfile = prospects != null && currentIndex < prospects.size - 1 ? prospects[nextIndex] : null;
+
 
     const { width: screenWidth } = useWindowDimensions();
     const hiddenTranslateX = 2 * screenWidth;
@@ -97,25 +97,29 @@ function HomeScreen() {
     return (
         // View for the first page
         <GestureHandlerRootView style={styles.container}>
-            { nextProfile && (
-            <View style={styles.nextCardContainer}>
-                <Animated.View style={[styles.animatedCard,nextCardStyle]}>
-                    <Card user={nextProfile}/>
-                </Animated.View>
-            </View>
+
+            {nextProfile === null && currentProfile === null && (
+                <Text>Update your profile to see more matches</Text>
+            )}
+
+            {nextProfile && (
+                <View style={styles.nextCardContainer}>
+                    <Animated.View style={[styles.animatedCard, nextCardStyle]}>
+                        <Card user={nextProfile}/>
+                    </Animated.View>
+                </View>
             )}
 
             {currentProfile && (
                 <PanGestureHandler onGestureEvent={gestureHandler}>
-                <Animated.View style={[styles.animatedCard,cardStyle]}>
-                    {/* Each card is a different profile. The general card layout can be changed in navigation/components/SpotMeCard/index.js*/}
-                    <Card user={currentProfile}/>
-                </Animated.View>
-            </PanGestureHandler>
+                    <Animated.View style={[styles.animatedCard, cardStyle]}>
+                        {/* Each card is a different profile. The general card layout can be changed in navigation/components/SpotMeCard/index.js*/}
+                        <Card user={currentProfile}/>
+                    </Animated.View>
+                </PanGestureHandler>
             )}
-            
+
         </GestureHandlerRootView>
-       
     )
 }
 
