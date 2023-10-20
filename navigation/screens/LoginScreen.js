@@ -32,7 +32,11 @@ import { registerUser, loginUser, loadLocalUserData, loadProspectsData } from '.
         loginUser(data)
             .then(response => {
                 console.log("Successfully logged in with: '" + response.user.email + "'")
-                loadLocalUserData(response.user.email, () => loadProspectsData(() => navigation.navigate('MainApp')));
+                loadLocalUserData(response.user.email, () => {
+                    loadProspectsData(() => {
+                        navigation.navigate('MainApp')
+                    })
+                });
             })
             .catch(err => {
                 alert(err);

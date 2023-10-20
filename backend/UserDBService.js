@@ -40,8 +40,15 @@ function getLocalUserData(){
 
 function loadProspectsData(onCompletionFunc){
     if (localUser != null) {
-        users.where("country", "==", localUser.country)
-            .where("state", "==", localUser.state).get().then((snapshot) => {
+        users.where("country", "==", localUser.country != null ? localUser.country : null)
+            .where("state", "==", localUser.state != null ? localUser.state : null)
+            .get().then((snapshot) => {
+
+                if (snapshot.empty) {
+                    console.log("No users with matching country or state")
+                    onCompletionFunc()
+                }
+
                 const validProspects = []
 
                 snapshot.forEach((otherUserDoc) => {
