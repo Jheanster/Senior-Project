@@ -16,6 +16,7 @@ import { registerUser, loginUser, loadLocalUserData, loadProspectsData } from '.
         registerUser(data)
             .then(response => {
                 console.log("Successfully added user login with email: '" + data.email + "'")
+                handleLogin()
             })
             .catch(err => {
                 alert(err)
