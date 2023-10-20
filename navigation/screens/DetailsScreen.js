@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { View, Text } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+
 
 export default function DetailsScreen({ navigation }){
     return(
@@ -7,6 +9,7 @@ export default function DetailsScreen({ navigation }){
             <Text
                 onPress={() => navigation.navigate('Home')}
                 style={{ fontSize: 26, fontWeight: 'bold' }}>Details Screen</Text>
+            <StatusBar translucent barStyle='light-color'/>
         </View>
     )
 }
