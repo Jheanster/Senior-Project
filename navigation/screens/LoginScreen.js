@@ -44,7 +44,7 @@ import { registerUser, loginUser, loadLocalUserData, loadProspectsData } from '.
     })
 
     const handleSignUp = () => {
-
+        setLoading(true)
         const data = {
             email: email.toLowerCase(),
             password: password,
@@ -61,7 +61,7 @@ import { registerUser, loginUser, loadLocalUserData, loadProspectsData } from '.
     }
 
     const handleLogin = () => {
-
+        setLoading(true)
         const data = {
             email: email.toLowerCase(),
             password: password,
