@@ -1,14 +1,18 @@
 import { useNavigation } from '@react-navigation/core'
 import React , { useEffect, useState } from 'react'
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, StatusBar } from 'react-native'
+import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, StatusBar, Animated } from 'react-native'
+import { Easing } from 'react-native-reanimated';
 import { auth } from '../../firebase'
 import MainContainer from '../MainContainer'
 import { loadLocalUserData, loadProspectsData } from '../../backend/UserDBService'
 
 
  function LoginScreen({navigation}) {
+    let rotateValueHolder = new Animated.Value(0)
+
     const[email,setEmail] = useState('')
     const[password,setPassword] = useState('')
+    const [loading,setLoading] = useState(false)
 
 
     useEffect(() => {
@@ -21,8 +25,24 @@ import { loadLocalUserData, loadProspectsData } from '../../backend/UserDBServic
         return unsubcribe
     }, [])
 
+
+    const startLoadingImage = () => {
+        rotateValueHolder.setValue(0)
+        Animated.timing(rotateValueHolder,{
+            toValue: 1,
+            duration: 3000,
+            easing: Easing.linear,
+            useNativeDriver: false
+        }).start(() => startLoadingImage())
+    }
+
+    const RotateData = rotateValueHolder.interpolate({
+        inputRange: [0,1],
+        outputRange: ['0deg','360deg']
+    })
+
     const handleSignUp = () => { 
-        
+        setLoading(true);
         auth.createUserWithEmailAndPassword(email,password)
         .then(userCredentials => {
             const user = userCredentials.user;
@@ -32,6 +52,7 @@ import { loadLocalUserData, loadProspectsData } from '../../backend/UserDBServic
     }
 
     const handleLogin = () => {
+        setLoading(true);
         auth.signInWithEmailAndPassword(email,password)
         .then(userCredentials => {
             const user = userCredentials.user;
@@ -39,6 +60,8 @@ import { loadLocalUserData, loadProspectsData } from '../../backend/UserDBServic
         })
         .catch(error => alert(error.message))
     }
+
+  
 
     return (
         
@@ -48,12 +71,24 @@ import { loadLocalUserData, loadProspectsData } from '../../backend/UserDBServic
             behavior="padding"
         >
         <View style={styles.inputContainer}>
-            <Image
-                style={{width: 250, alignSelf: 'center'}}
-                resizeMode='contain'
-                source={require('../../assets/images/SpotMeLogo.png')}
-                
-            />
+            {loading ? (
+                startLoadingImage(),
+                <Animated.Image
+                    style={[
+                        styles.imageStyle,
+                        {transform: [{rotate: RotateData }]}
+                    ]}
+                    resizeMode='contain'
+                    source={require('../../assets/images/dumbbell.png')}
+               />
+                 ) : (
+                <Image
+                    style={styles.imageStyle}
+                    resizeMode='contain'
+                    source={require('../../assets/images/SpotMeLogo.png')}
+                />
+            )}
+           
             <TextInput
                 placeholder='Email'
                 value={email}
@@ -61,7 +96,7 @@ import { loadLocalUserData, loadProspectsData } from '../../backend/UserDBServic
                 style={styles.input}
             />
             <TextInput
-                placeholder='Password'
+                placeholder='Password'r
                 value={password }
                 onChangeText={text => setPassword(text)}
                 style={styles.input}
@@ -159,7 +194,11 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         fontSize: 50,
         marginBottom:250,
-    }
+    },
 
+    imageStyle:{
+        width: 250, 
+        alignSelf: 'center',
+    },
 
 })
