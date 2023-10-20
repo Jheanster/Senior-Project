@@ -89,7 +89,12 @@ function getProspectsData(){
 function registerUser(newData){
     return auth.createUserWithEmailAndPassword(newData.email, newData.password)
         .then(() => {
-            return users.add(newData)
+
+            const data = {
+                email: newData.email.toLowerCase()
+            }
+            return users.add(data)
+
         })
         .catch(error => {
             return Promise.reject(error);
