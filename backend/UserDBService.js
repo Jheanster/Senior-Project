@@ -1,32 +1,35 @@
-import { docDB, fileDB } from "../firebase"
-import { assignProspectScore } from "./ProspectScoreService"
-import { assignDistanceFromLocalUser } from "./UserLocationService"
+import {auth, docDB, fileDB} from "../firebase"
+import {assignProspectScore} from "./ProspectScoreService"
+import {assignDistanceFromLocalUser} from "./UserLocationService"
 
 const MAX_DISTANCE_MI = 25
 
-const usersCol = docDB.collection("users")
+const users = docDB.collection("users")
+
 var localUser = null
 var sortedProspects = null
 
-function getUserDataFromDoc(userDoc){
+function getUserDataFromDoc(userDoc) {
     const userData = userDoc.data()
     userData.id = userDoc.id
     return userData
 }
 
 function loadLocalUserData(email, onCompletionFunc){
-    usersCol.where("email", "==", email).get().then((snapshot) => {
-        if(snapshot.size == 1){
+    users.where("email", "==", email).get().then((snapshot) => {
+        if (snapshot.size === 1) {
             localUser = getUserDataFromDoc(snapshot.docs[0])
             assignPFP(localUser, () => {
-                if(onCompletionFunc){
+                if (onCompletionFunc){
                     onCompletionFunc()
                 }
             })
-        }else if(snapshot.size > 1){
-            console.warn("WHUT DA HELLLLLL There are multiple users with the email '" + email + "' XDDDDD")
-        }else{
-            console.warn("WHUT DA HELLLLLL We couldn't find a user with the email '" + email + "' XDDDDD")
+        }
+        else if (snapshot.size > 1) {
+            console.warn("Error: There are multiple users with the email: '" + email + "'")
+        }
+        else {
+            console.warn("Error: We couldn't find a user with the email: '" + email + "'")
         }
     })
 }
@@ -36,19 +39,26 @@ function getLocalUserData(){
 }
 
 function loadProspectsData(onCompletionFunc){
-    if(localUser != null){
-        usersCol.where("country", "==", localUser.country)
-            .where("state", "==", localUser.state).get().then((snapshot) => {
+    if (localUser != null) {
+        users.where("country", "==", localUser.country != null ? localUser.country : null)
+            .where("state", "==", localUser.state != null ? localUser.state : null)
+            .get().then((snapshot) => {
+
+                if (snapshot.empty) {
+                    console.log("No users with matching country or state")
+                    onCompletionFunc()
+                }
+
                 const validProspects = []
 
                 snapshot.forEach((otherUserDoc) => {
                     const otherUser = getUserDataFromDoc(otherUserDoc)
                     assignDistanceFromLocalUser(localUser, otherUser)
 
-                    if(otherUser.distance <= MAX_DISTANCE_MI){
+                    if(otherUser.distance <= MAX_DISTANCE_MI) {
                         assignProspectScore(localUser, otherUser)
 
-                        if(!isNaN(otherUser.score)){
+                        if(!isNaN(otherUser.score)) {
                             validProspects.push(otherUser)
                         }
                     }
@@ -60,14 +70,14 @@ function loadProspectsData(onCompletionFunc){
                 sortedProspects.forEach((prospect) => {
                     assignPFP(prospect, () => {
                         numPFPsLoaded++
-                        if(numPFPsLoaded == sortedProspects.length && onCompletionFunc){
+                        if (numPFPsLoaded === sortedProspects.length && onCompletionFunc){
                             onCompletionFunc()
                         }
                     })
                 })
             })
-    }else{
-        console.warn("Don't load prospects before loading the local user")
+    } else {
+        console.warn("Error: Trying to load prospects before loading the local user")
     }
 }
 
@@ -75,16 +85,32 @@ function getProspectsData(){
     return sortedProspects
 }
 
-function addLocalUserToDB(newData){
-    localUser = newData
-    usersCol.add(newData)
+// Takes in a JSON from LoginScreen.js handleSignUp()
+function registerUser(newData){
+    return auth.createUserWithEmailAndPassword(newData.email, newData.password)
+        .then(() => {
+
+            const data = {
+                email: newData.email.toLowerCase()
+            }
+            return users.add(data)
+
+        })
+        .catch(error => {
+            return Promise.reject(error);
+        })
+}
+
+// Takes in a JSON from LoginScreen.js handleLogin()
+function loginUser(data) {
+    return auth.signInWithEmailAndPassword(data.email, data.password)
 }
 
 function updateLocalUserInDB(newData){
-    for(let field in newData){
+    for (let field in newData) {
         localUser[field] = newData[field]
     }
-    usersCol.doc(localUser.id).update(newData)
+    users.doc(localUser.id).update(newData)
 }
 
 function getPFPRef(user){
@@ -93,7 +119,7 @@ function getPFPRef(user){
 
 function uploadLocalUserPFP(newPFPFile, onCompletionFunc){
     getPFPRef(localUser).put(newPFPFile).then(() => {
-        if(onCompletionFunc){
+        if (onCompletionFunc){
             onCompletionFunc()
         }
     })
@@ -103,14 +129,14 @@ function assignPFP(user, onCompletionFunc){
     getPFPRef(user).getDownloadURL().then(
         (url) => {
             user.pfp = url
-            if(onCompletionFunc){
+            if (onCompletionFunc) {
                 onCompletionFunc(true)
             }
         },
         () => {
             user.pfp = ""
             console.warn("Failed to get PFP URL for " + user.name)
-            if(onCompletionFunc){
+            if (onCompletionFunc) {
                 onCompletionFunc(false)
             }
         }
@@ -119,5 +145,5 @@ function assignPFP(user, onCompletionFunc){
 
 export {
     loadLocalUserData, getLocalUserData, loadProspectsData, getProspectsData,
-    addLocalUserToDB, updateLocalUserInDB, uploadLocalUserPFP
+    registerUser, updateLocalUserInDB, uploadLocalUserPFP, loginUser
 }

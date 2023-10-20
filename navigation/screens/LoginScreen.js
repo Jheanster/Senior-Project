@@ -1,10 +1,11 @@
+
 import { useNavigation } from '@react-navigation/core'
 import React , { useEffect, useState } from 'react'
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, StatusBar, Animated } from 'react-native'
 import { Easing } from 'react-native-reanimated';
 import { auth } from '../../firebase'
 import MainContainer from '../MainContainer'
-import { loadLocalUserData, loadProspectsData } from '../../backend/UserDBService'
+import { registerUser, loginUser, loadLocalUserData, loadProspectsData } from '../../backend/UserDBService'
 
 
  function LoginScreen({navigation}) {
@@ -13,6 +14,7 @@ import { loadLocalUserData, loadProspectsData } from '../../backend/UserDBServic
     const[email,setEmail] = useState('')
     const[password,setPassword] = useState('')
     const [loading,setLoading] = useState(false)
+
 
 
     useEffect(() => {
@@ -41,31 +43,47 @@ import { loadLocalUserData, loadProspectsData } from '../../backend/UserDBServic
         outputRange: ['0deg','360deg']
     })
 
-    const handleSignUp = () => { 
-        setLoading(true);
-        auth.createUserWithEmailAndPassword(email,password)
-        .then(userCredentials => {
-            const user = userCredentials.user;
-            console.log('Registered with:', user.email);
-        })
-        .catch(error => alert(error.message))
+    const handleSignUp = () => {
+
+        const data = {
+            email: email.toLowerCase(),
+            password: password,
+        }
+
+        registerUser(data)
+            .then(response => {
+                console.log("Successfully added user login with email: '" + data.email + "'")
+                handleLogin()
+            })
+            .catch(err => {
+                alert(err)
+            })
     }
 
     const handleLogin = () => {
-        setLoading(true);
-        auth.signInWithEmailAndPassword(email,password)
-        .then(userCredentials => {
-            const user = userCredentials.user;
-            console.log('Logged in with:', user.email);
-        })
-        .catch(error => alert(error.message))
+
+        const data = {
+            email: email.toLowerCase(),
+            password: password,
+        }
+
+        loginUser(data)
+            .then(response => {
+                console.log("Successfully logged in with: '" + response.user.email + "'")
+                loadLocalUserData(response.user.email, () => {
+                    loadProspectsData(() => {
+                        navigation.navigate('MainApp')
+                    })
+                });
+            })
+            .catch(err => {
+                alert(err);
+            })
     }
 
   
 
     return (
-        
-
         <KeyboardAvoidingView
             style={styles.container}
             behavior="padding"
