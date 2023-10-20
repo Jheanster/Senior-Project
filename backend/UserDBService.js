@@ -1,6 +1,6 @@
-import { auth, docDB, fileDB } from "../firebase"
-import { assignProspectScore } from "./ProspectScoreService"
-import { assignDistanceFromLocalUser } from "./UserLocationService"
+import {auth, docDB, fileDB} from "../firebase"
+import {assignProspectScore} from "./ProspectScoreService"
+import {assignDistanceFromLocalUser} from "./UserLocationService"
 
 const MAX_DISTANCE_MI = 25
 
@@ -17,16 +17,18 @@ function getUserDataFromDoc(userDoc) {
 
 function loadLocalUserData(email, onCompletionFunc){
     users.where("email", "==", email).get().then((snapshot) => {
-        if(snapshot.size === 1) {
+        if (snapshot.size === 1) {
             localUser = getUserDataFromDoc(snapshot.docs[0])
             assignPFP(localUser, () => {
-                if(onCompletionFunc){
+                if (onCompletionFunc){
                     onCompletionFunc()
                 }
             })
-        } else if (snapshot.size > 1) {
+        }
+        else if (snapshot.size > 1) {
             console.warn("Error: There are multiple users with the email: '" + email + "'")
-        } else {
+        }
+        else {
             console.warn("Error: We couldn't find a user with the email: '" + email + "'")
         }
     })
@@ -37,7 +39,7 @@ function getLocalUserData(){
 }
 
 function loadProspectsData(onCompletionFunc){
-    if(localUser != null) {
+    if (localUser != null) {
         users.where("country", "==", localUser.country)
             .where("state", "==", localUser.state).get().then((snapshot) => {
                 const validProspects = []
@@ -79,6 +81,12 @@ function getProspectsData(){
 // Takes in a JSON from LoginScreen.js handleSignUp()
 function registerUser(newData){
     return auth.createUserWithEmailAndPassword(newData.email, newData.password)
+        .then(() => {
+            return users.add(newData)
+        })
+        .catch(error => {
+            return Promise.reject(error);
+        })
 }
 
 // Takes in a JSON from LoginScreen.js handleLogin()
@@ -99,7 +107,7 @@ function getPFPRef(user){
 
 function uploadLocalUserPFP(newPFPFile, onCompletionFunc){
     getPFPRef(localUser).put(newPFPFile).then(() => {
-        if(onCompletionFunc){
+        if (onCompletionFunc){
             onCompletionFunc()
         }
     })
@@ -109,14 +117,14 @@ function assignPFP(user, onCompletionFunc){
     getPFPRef(user).getDownloadURL().then(
         (url) => {
             user.pfp = url
-            if(onCompletionFunc){
+            if (onCompletionFunc) {
                 onCompletionFunc(true)
             }
         },
         () => {
             user.pfp = ""
             console.warn("Failed to get PFP URL for " + user.name)
-            if(onCompletionFunc){
+            if (onCompletionFunc) {
                 onCompletionFunc(false)
             }
         }

@@ -1,53 +1,41 @@
-import { useNavigation } from '@react-navigation/core'
-import React , { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import {registerUser, loginUser} from '../../backend/UserDBService'
-
+import { registerUser, loginUser, loadLocalUserData, loadProspectsData } from '../../backend/UserDBService'
 
  function LoginScreen({navigation}) {
     const[email,setEmail] = useState('')
     const[password,setPassword] = useState('')
 
-
-    /*useEffect(() => {
-        const unsubcribe =  auth.onAuthStateChanged(user => {
-            if (user) {
-                loadLocalUserData(user.email, () => loadProspectsData(() => navigation.navigate('MainApp')));
-            }
-        })
-
-        return unsubcribe
-    }, [])*/
-
     const handleSignUp = () => {
 
         const data = {
-            email: email,
+            email: email.toLowerCase(),
             password: password,
         }
 
         registerUser(data)
             .then(response => {
-                console.log("Successfully added user login with email: '" + response.user.email + "'")
+                console.log("Successfully added user login with email: '" + data.email + "'")
             })
             .catch(err => {
-                console.log(err)
+                alert(err)
             })
     }
 
     const handleLogin = () => {
 
         const data = {
-            email: email,
+            email: email.toLowerCase(),
             password: password,
         }
 
         loginUser(data)
             .then(response => {
                 console.log("Successfully logged in with: '" + response.user.email + "'")
+                loadLocalUserData(response.user.email, () => loadProspectsData(() => navigation.navigate('MainApp')));
             })
             .catch(err => {
-                console.log(err);
+                alert(err);
             })
     }
 
