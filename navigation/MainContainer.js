@@ -11,6 +11,7 @@ import SettingsScreen from './screens/SettingsScreen'
 import ChatScreen from './screens/ChatScreen'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './screens/LoginScreen';
+import EditProfileScreen from './screens/EditProfileScreen';
 
 // Screen names
 const homeName = 'Home';
@@ -21,6 +22,15 @@ const loginName = 'Login';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
+
+function EditProfile(){
+    return(
+        <Stack.Navigator>
+            <Stack.Screen name='Settings' component={SettingsScreen}/>
+            <Stack.Screen name='Edit Profile' component={EditProfileScreen}/>
+        </Stack.Navigator>
+    )
+}
 
 function MainApp(){
     return(
@@ -47,7 +57,7 @@ function MainApp(){
 
             <Tab.Screen name={homeName} component={HomeScreen}/>
             <Tab.Screen name={detailsName} component={DetailsScreen}/>
-            <Tab.Screen name={settingsName} component={SettingsScreen}/>
+            <Tab.Screen name={settingsName} component={EditProfile}/>
 
         </Tab.Navigator>
     )
@@ -62,7 +72,6 @@ export default function MainContainer(){
             <Stack.Navigator screenOptions={{headerShown: false}}>
                 <Stack.Screen name='Login' component={LoginScreen}/>
                 <Stack.Screen name='MainApp' component={MainApp}/>
-                <Stack.Screen name='Chat' component={ChatScreen}/>
             </Stack.Navigator>
         </NavigationContainer>
     )
