@@ -7,6 +7,7 @@ import {
   Text,
   TouchableRipple,
 } from 'react-native-paper';
+import { auth } from '../../firebase'
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -16,7 +17,15 @@ import { getLocalUserData } from '../../backend/UserDBService';
 const ProfileScreen = ({navigation}) => {
 
     const localUser = getLocalUserData();
-    // console.log(localUser)
+    console.log(localUser)
+
+    const handleSignOut = () => {
+      auth.signOut()
+      .then(() => {
+          navigation.replace("Login")
+      })
+      .catch(error => alert(error.message))
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -60,18 +69,17 @@ const ProfileScreen = ({navigation}) => {
           </View>
         </TouchableRipple>
         
-
-        <TouchableRipple onPress={() => {}}>
+        <TouchableRipple onPress={() => {navigation.navigate('Edit Profile')}}>
           <View style={styles.menuItem}>
-            <Icon name="account-check-outline" color="#FF6347" size={25}/>
-            <Text style={styles.menuItemText}>Support</Text>
+            <Icon name="account-edit-outline" color="#FF6347" size={25}/>
+            <Text style={styles.menuItemText}>Edit profile</Text>
           </View>
         </TouchableRipple>
 
-        <TouchableRipple onPress={() => {navigation.navigate('Edit Profile')}}>
+        <TouchableRipple onPress={handleSignOut}>
           <View style={styles.menuItem}>
-            <Icon name="settings-outline" color="#FF6347" size={25}/>
-            <Text style={styles.menuItemText}>Edit profile</Text>
+            <Icon name="logout" color="#FF6347" size={25}/>
+            <Text style={styles.menuItemText}>Sign Out</Text>
           </View>
         </TouchableRipple>
       </View>
