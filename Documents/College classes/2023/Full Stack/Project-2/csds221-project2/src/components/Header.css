@@ -1,0 +1,21 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: blue;
+    padding: 10px;
+  }
+  
+  .title {
+    color: white;
+    flex-grow: 1; /* This property makes the title take up the remaining space */
+    text-align: center; /* This property centers the text within the title */
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .icon {
+    color: white;
+    margin-right: 10px; /* Adjust the margin as needed */
+  }
+  
