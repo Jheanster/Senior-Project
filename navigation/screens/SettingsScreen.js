@@ -17,7 +17,7 @@ import { getLocalUserData } from '../../backend/UserDBService';
 const ProfileScreen = ({navigation}) => {
 
     const localUser = getLocalUserData();
-    console.log(localUser)
+    // console.log(localUser)
 
     const handleSignOut = () => {
       auth.signOut()
