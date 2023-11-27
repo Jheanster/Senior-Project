@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
 
     cardInner:{
         padding: 10,
-        backgroundColor: 'black'
+        backgroundColor: 'black',
     },
 
     name:{
