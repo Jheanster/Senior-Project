@@ -11,6 +11,8 @@ import SettingsScreen from './screens/SettingsScreen'
 import ChatScreen from './screens/ChatScreen'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './screens/LoginScreen';
+import EditProfileScreen from './screens/EditProfileScreen';
+import ModalScreen from './screens/ModalScreen';
 
 // Screen names
 const homeName = 'Home';
@@ -22,34 +24,23 @@ const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 
+function EditProfile(){
+    return(
+        <Stack.Navigator>
+            <Stack.Screen name='Settings' component={SettingsScreen}/>
+            <Stack.Screen name='Edit Profile' component={EditProfileScreen}/>
+        </Stack.Navigator>
+    )
+}
+
 function MainApp(){
     return(
-        <Tab.Navigator 
-            initialRouteName={homeName}
-            screenOptions={({route}) => ({
-                tabBarIcon: ({focused, color, size}) => {
-                    let iconName;
-                    let rn = route.name;
-
-                    if (rn === homeName){
-                        iconName = focused ? 'home' : 'home-outline';
-                    } else if (rn  === detailsName){
-                        iconName = focused ? 'list' : 'list-outline';
-                    } else if (rn === settingsName){
-                        iconName = focused ? 'settings' : 'settings-outline';
-                    }
-
-                    return<Ionicons name={iconName} size={size} color={color}/>
-                },
-
-                headerShown: false,
-            })}>
-
-            <Tab.Screen name={homeName} component={HomeScreen}/>
-            <Tab.Screen name={detailsName} component={DetailsScreen}/>
-            <Tab.Screen name={settingsName} component={SettingsScreen}/>
-
-        </Tab.Navigator>
+        <NavigationContainer>
+            <Stack.Navigator screenOptions={{headerShown: false}}>
+                <Stack.Screen name='Home' component={HomeScreen}/>
+                
+            </Stack.Navigator>
+        </NavigationContainer>
     )
     
 }
@@ -61,8 +52,18 @@ export default function MainContainer(){
         <NavigationContainer>
             <Stack.Navigator screenOptions={{headerShown: false}}>
                 <Stack.Screen name='Login' component={LoginScreen}/>
-                <Stack.Screen name='MainApp' component={MainApp}/>
-                <Stack.Screen name='Chat' component={ChatScreen}/>
+                <Stack.Group>
+                    <Stack.Screen name='Home' component={HomeScreen}/>
+                    <Stack.Screen name='Chat' component={ChatScreen}/>
+                </Stack.Group>
+
+                <Stack.Group screenOptions={{presentation: 'modal'}}>
+                    <Stack.Screen name='Modal' component={ModalScreen}/>
+                </Stack.Group>
+
+                <Stack.Group>
+                    <Stack.Screen name='Edit' component={EditProfile}/>
+                </Stack.Group>      
             </Stack.Navigator>
         </NavigationContainer>
     )

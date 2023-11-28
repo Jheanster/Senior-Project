@@ -59,7 +59,7 @@ import { registerUser, loginUser, loadLocalUserData, loadProspectsData } from '.
                 console.log("Successfully logged in with: '" + response.user.email + "'")
                 loadLocalUserData(response.user.email, () => {
                     loadProspectsData(() => {
-                        navigation.navigate('MainApp')
+                        navigation.navigate('Home')
                     })
                 });
             })

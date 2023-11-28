@@ -14,6 +14,7 @@ const Card = ( props ) => {
                     <Text style={styles.bio}>{props.user.bio}</Text>
                 </View>
             </ImageBackground>
+            
         </View>
     )
 }
@@ -51,6 +52,7 @@ const styles = StyleSheet.create({
 
     cardInner:{
         padding: 10,
+        backgroundColor: 'black',
     },
 
     name:{

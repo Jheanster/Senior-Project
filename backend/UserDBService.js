@@ -117,13 +117,7 @@ function getPFPRef(user){
     return fileDB.ref("pfps/pfp-" + user.id + ".png")
 }
 
-function uploadLocalUserPFP(newPFPFile, onCompletionFunc){
-    getPFPRef(localUser).put(newPFPFile).then(() => {
-        if (onCompletionFunc){
-            onCompletionFunc()
-        }
-    })
-}
+
 
 function assignPFP(user, onCompletionFunc){
     getPFPRef(user).getDownloadURL().then(
@@ -145,5 +139,5 @@ function assignPFP(user, onCompletionFunc){
 
 export {
     loadLocalUserData, getLocalUserData, loadProspectsData, getProspectsData,
-    registerUser, updateLocalUserInDB, uploadLocalUserPFP, loginUser
+    registerUser, updateLocalUserInDB, loginUser
 }
