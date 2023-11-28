@@ -1,10 +1,12 @@
-import { View, Text, StyleSheet, TouchableOpacity, Button, ImageBackground, TextInput } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, TextInput, Alert } from 'react-native'
 import React , { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import Feather from 'react-native-vector-icons/Feather'
-
+import * as ImagePicker from 'expo-image-picker'
+import * as FileSystem from 'expo-file-system'
+import { firebase } from '../../firebase'
 import { getLocalUserData, updateLocalUserInDB } from '../../backend/UserDBService'
 
 const EditProfileScreen = () => {
@@ -12,24 +14,78 @@ const EditProfileScreen = () => {
     const[name,setName] = useState('')
     const[address,setAddress] = useState('')
     const[bio,setBio] = useState('')
-
-
+    const [image,setImage] = useState(null);
+    const [uploading, setUploading] = useState(false);
 
     const localUser = getLocalUserData();
     //console.log(localUser)
 
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            allowsEditing: true,
+            aspect: [4,3],
+            quality: 1,
+        })
+
+        if (!result.canceled) {
+            setImage(result.assets[0].uri);
+        }
+    }
+
+    // Change this function
+    const uploadMedia = async () => {
+        setUploading(true);
+    
+        try {
+            const { uri } = await FileSystem.getInfoAsync(image);
+            const blob = await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.onload = () => {
+                    resolve(xhr.response);
+                };
+                xhr.onerror = (e) => {
+                    reject(new TypeError("Network request failed"));
+                };
+                xhr.responseType = 'blob'
+                xhr.open('GET', uri, true);
+                xhr.send(null);
+            });
+    
+            // Use localUser.id as the filename and upload to 'pfps/' directory
+            const filename = `pfps/pfp-${localUser.id}.png`;
+            const ref = firebase.storage().ref().child(filename);
+    
+            await ref.put(blob);
+
+              // Get the download URL of the uploaded image
+            const downloadURL = await ref.getDownloadURL();
+
+            // Update the user document in Firestore with the new 'pfp' field
+            await firebase.firestore().collection('users').doc(localUser.id).update({
+                pfp: downloadURL,
+            });
+
+            setUploading(false);
+            Alert.alert("Photo uploaded");
+            setImage(null);
+    
+        } catch (error) {
+            console.error(error);
+            setUploading(false);
+        }
+    };
 
     const submitNewData = () => {
-
         // If they didnt put anything, just change what they did put
         const data = {
-            email: email,
-            name: name,
-            address: address,
-            bio: bio,
+            email: email !== '' ? email : localUser.email ,
+            name: name !== '' ? name : localUser.name,
+            address: address !== '' ? address : localUser.address,
+            bio: bio !== '' ? bio : localUser.bio,
         }
-
         updateLocalUserInDB(data)
+        uploadMedia();
     }
 
 
@@ -39,7 +95,9 @@ const EditProfileScreen = () => {
         <View style={styles.container}>
             <View style={{marginLeft: 20, marginRight: 20}}>
                 <View style={{alignItems: 'center'}}>
-                    <TouchableOpacity onPress={() => {}}>
+
+                    {/* Camera button */}
+                    <TouchableOpacity onPress={pickImage}>
                         <View style={{
                             height: 100,
                             width: 100,
@@ -47,7 +105,9 @@ const EditProfileScreen = () => {
                             justifyContent: 'center',
                             alignItems: 'center',
                         }}>
-                            <ImageBackground source={{uri: localUser.pfp}}
+
+                            {/* Change to display the selected image if the user selected an image */}
+                            <ImageBackground source={{uri: image !== null ? image : localUser.pfp}}
                             style={{height: 100, width: 100}}
                             imageStyle={{borderRadius: 15}}
                             >

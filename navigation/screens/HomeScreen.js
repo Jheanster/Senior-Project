@@ -1,8 +1,8 @@
-import React, { useEffect, useLayoutEffect, useRef } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useNavigation } from '@react-navigation/core'
 import { View, Text, Button, TouchableOpacity, Image, StyleSheet} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getLocalUserData, getProspectsData } from '../../backend/UserDBService';
+import { getLocalUserData } from '../../backend/UserDBService';
 import { Ionicons, AntDesign, Entypo} from '@expo/vector-icons';
 import { collection, doc, onSnapshot, setDoc } from "@firebase/firestore"
 import Swiper from "react-native-deck-swiper"
@@ -11,22 +11,49 @@ import { docDB } from '../../firebase';
 
 function HomeScreen() {
     const navigation = useNavigation();
+    const [profiles,setProfiles] = useState([]);
     const localUser = getLocalUserData();
+    
     // console.log(localUser);
-    const prospects = getProspectsData(); 
     const swiperRef = useRef(null);
     
-    const handleSwipeLeft = async(cardIndex) => {
-        if(!prospects[cardIndex]) return;
+    const handleSwipeLeft = (cardIndex) => {
+        if(!profiles[cardIndex]) return;
 
-        const userSwiped = prospects[cardIndex];
+        // This adds a new called passes collection for the user that keeps track of the passes made on that account
+        const userSwiped = profiles[cardIndex];
         console.log(`You swiped pass on ${userSwiped.name}`)
-        setDoc(doc(docDB, 'users', localUser.id, 'passes', userSwiped.id), userSwiped)
+        setDoc(doc(docDB, 'users', localUser.id, 'passes', userSwiped.id), userSwiped);
     }
 
-    const handleSwipeRight = async(cardIndex) => {
+    const handleSwipeRight = (cardIndex) => {
+        if(!profiles[cardIndex]) return;
 
+        // This adds a new collection called matches that keeps track of the matches made on that account
+        const userSwiped = profiles[cardIndex];
+        console.log(`You swiped pass on ${userSwiped.name}`)
+        setDoc(doc(docDB, 'users', localUser.id, 'matches', userSwiped.id), userSwiped);
     }
+
+
+    useEffect(() => {
+        let unsub;
+        const fetchCards = async () => {
+            unsub = onSnapshot(collection(docDB,'users'), snapshot => {
+                setProfiles(
+                    snapshot.docs.filter(doc => doc.id !== localUser.id).map(doc => ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }))
+                )
+            })
+        }
+
+        fetchCards();
+        return unsub
+    }, [])
+
+    // console.log(profiles)
 
     return (
     <SafeAreaView style={tw`flex-1`}>
@@ -51,16 +78,16 @@ function HomeScreen() {
             <Swiper
             ref={swiperRef}
             containerStyle={{backgroundColor:'transparent'}}
-                cards={prospects}
+                cards={profiles}
                 stackSize={5}
                 cardIndex={0}
                 animateCardOpacity
                 verticalSwipe={false}
-                onSwipedLeft={() => {
+                onSwipedLeft={(cardIndex) => {
                     console.log("Denied")
                     handleSwipeLeft(cardIndex)
                 }}
-                onSwipedRight={() => {
+                onSwipedRight={(cardIndex) => {
                     console.log("Accepted")
                     handleSwipeRight(cardIndex)
                 }}

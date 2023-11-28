@@ -28,4 +28,4 @@ const auth = firebase.auth(app)
 const docDB = firebase.firestore(app)
 const fileDB = firebase.storage(app)
 
-export { auth, docDB, fileDB }
+export { auth, docDB, fileDB, firebase }

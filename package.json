@@ -28,7 +28,9 @@
     "react-native-screens": "~3.22.0",
     "react-native-web": "~0.19.6",
     "reanimated-bottom-sheet": "^1.0.0-alpha.22",
-    "twrnc": "^3.6.4"
+    "twrnc": "^3.6.4",
+    "expo-image-picker": "~14.3.2",
+    "expo-file-system": "~15.4.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
