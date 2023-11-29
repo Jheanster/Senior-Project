@@ -9,7 +9,7 @@ const users = docDB.collection("users")
 var localUser = null
 var sortedProspects = null
 
-function getUserDataFromDoc(userDoc) {
+function getUserDataFromDoc(userDoc){
     const userData = userDoc.data()
     userData.id = userDoc.id
     return userData
@@ -17,18 +17,16 @@ function getUserDataFromDoc(userDoc) {
 
 function loadLocalUserData(email, onCompletionFunc){
     users.where("email", "==", email).get().then((snapshot) => {
-        if (snapshot.size === 1) {
+        if(snapshot.size === 1){
             localUser = getUserDataFromDoc(snapshot.docs[0])
             assignPFP(localUser, () => {
-                if (onCompletionFunc){
+                if(onCompletionFunc){
                     onCompletionFunc()
                 }
             })
-        }
-        else if (snapshot.size > 1) {
+        }else if(snapshot.size > 1){
             console.warn("Error: There are multiple users with the email: '" + email + "'")
-        }
-        else {
+        }else{
             console.warn("Error: We couldn't find a user with the email: '" + email + "'")
         }
     })
@@ -39,12 +37,12 @@ function getLocalUserData(){
 }
 
 function loadProspectsData(onCompletionFunc){
-    if (localUser != null) {
-        users.where("country", "==", localUser.country != null ? localUser.country : null)
-            .where("state", "==", localUser.state != null ? localUser.state : null)
+    if(localUser != null){
+        users.where("country", "==", localUser.country)
+            .where("state", "==", localUser.state)
             .get().then((snapshot) => {
 
-                if (snapshot.empty) {
+                if(snapshot.empty){
                     console.log("No users with matching country or state")
                     onCompletionFunc()
                 }
@@ -53,12 +51,14 @@ function loadProspectsData(onCompletionFunc){
 
                 snapshot.forEach((otherUserDoc) => {
                     const otherUser = getUserDataFromDoc(otherUserDoc)
+                    console.log("Loaded prospect: " + otherUser.name)
                     assignDistanceFromLocalUser(localUser, otherUser)
 
-                    if(otherUser.distance <= MAX_DISTANCE_MI) {
+                    if(otherUser.distance <= MAX_DISTANCE_MI){
                         assignProspectScore(localUser, otherUser)
-
+                        console.log("  -Within distance")
                         if(!isNaN(otherUser.score)) {
+                            console.log("  -Acceptable score")
                             validProspects.push(otherUser)
                         }
                     }
@@ -70,7 +70,7 @@ function loadProspectsData(onCompletionFunc){
                 sortedProspects.forEach((prospect) => {
                     assignPFP(prospect, () => {
                         numPFPsLoaded++
-                        if (numPFPsLoaded === sortedProspects.length && onCompletionFunc){
+                        if(numPFPsLoaded === sortedProspects.length && onCompletionFunc){
                             onCompletionFunc()
                         }
                     })
@@ -86,28 +86,24 @@ function getProspectsData(){
 }
 
 // Takes in a JSON from LoginScreen.js handleSignUp()
-function registerUser(newData){
-    return auth.createUserWithEmailAndPassword(newData.email, newData.password)
-        .then(() => {
-
-            const data = {
-                email: newData.email.toLowerCase()
-            }
-            return users.add(data)
-
+async function registerUser(newData){
+    try{
+        await auth.createUserWithEmailAndPassword(newData.email, newData.password)
+        return await users.add({
+            email: newData.email.toLowerCase()
         })
-        .catch(error => {
-            return Promise.reject(error);
-        })
+    }catch(error){
+        return await Promise.reject(error)
+    }
 }
 
 // Takes in a JSON from LoginScreen.js handleLogin()
-function loginUser(data) {
+function loginUser(data){
     return auth.signInWithEmailAndPassword(data.email, data.password)
 }
 
 function updateLocalUserInDB(newData){
-    for (let field in newData) {
+    for(let field in newData){
         localUser[field] = newData[field]
     }
     users.doc(localUser.id).update(newData)
@@ -117,20 +113,18 @@ function getPFPRef(user){
     return fileDB.ref("pfps/pfp-" + user.id + ".png")
 }
 
-
-
 function assignPFP(user, onCompletionFunc){
     getPFPRef(user).getDownloadURL().then(
         (url) => {
             user.pfp = url
-            if (onCompletionFunc) {
+            if(onCompletionFunc){
                 onCompletionFunc(true)
             }
         },
         () => {
             user.pfp = ""
             console.warn("Failed to get PFP URL for " + user.name)
-            if (onCompletionFunc) {
+            if(onCompletionFunc){
                 onCompletionFunc(false)
             }
         }
@@ -139,5 +133,5 @@ function assignPFP(user, onCompletionFunc){
 
 export {
     loadLocalUserData, getLocalUserData, loadProspectsData, getProspectsData,
-    registerUser, updateLocalUserInDB, loginUser
+    updateLocalUserInDB, registerUser, loginUser
 }
