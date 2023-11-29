@@ -23,7 +23,7 @@ const MessageScreen = (props) => {
   // console.log(props.matchDetails);
 
 
-  useEffect(() => {
+  useEffect(() => 
     onSnapshot(
       query(
         collection(docDB,'matches',matchDetails.id, 'messages'),
@@ -33,7 +33,7 @@ const MessageScreen = (props) => {
           ...doc.data()
       })))
     )
-  }, [matchDetails, docDB])
+  , [matchDetails, docDB])
 
   const sendMessage = () => {
     addDoc(collection(docDB, 'matches', matchDetails.id, 'messages'), {
@@ -63,10 +63,11 @@ const MessageScreen = (props) => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <FlatList 
             data={messages}
+            inverted={-1}
             style={tw`pl-4`}
             keyExtractor={item => item.id}
             renderItem={({item: message}) => 
-              messages.userId === localUser.id ? (
+              message.userId === localUser.id ? (
                 <SenderMessage key={message.id} message={message}/>
               ) : (
                 <ReceiverMessage key={message.id} message={message}/>
