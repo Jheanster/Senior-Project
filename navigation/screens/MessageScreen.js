@@ -83,7 +83,6 @@ const MessageScreen = (props) => {
             style={tw`h-10 text-lg`}
             placeholder='Send message...'
             onChangeText={setInput}
-            onSubmitEditing={sendMessage}
             value={input}
           />
           <Button onPress={sendMessage} title='Send' color="#FF5864"/>
