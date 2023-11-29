@@ -85,7 +85,11 @@ const EditProfileScreen = () => {
             bio: bio !== '' ? bio : localUser.bio,
         }
         updateLocalUserInDB(data)
-        uploadMedia();
+
+        if (image !== null){
+            uploadMedia();
+        }
+        
     }
 
 
