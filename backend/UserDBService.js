@@ -40,6 +40,7 @@ function loadProspectsData(onCompletionFunc){
     if(localUser != null){
         users.where("country", "==", localUser.country)
             .where("state", "==", localUser.state)
+            .where("email", "!=", localUser.email)
             .get().then((snapshot) => {
 
                 if(snapshot.empty){
@@ -85,23 +86,6 @@ function getProspectsData(){
     return sortedProspects
 }
 
-// Takes in a JSON from LoginScreen.js handleSignUp()
-async function registerUser(newData){
-    try{
-        await auth.createUserWithEmailAndPassword(newData.email, newData.password)
-        return await users.add({
-            email: newData.email.toLowerCase()
-        })
-    }catch(error){
-        return await Promise.reject(error)
-    }
-}
-
-// Takes in a JSON from LoginScreen.js handleLogin()
-function loginUser(data){
-    return auth.signInWithEmailAndPassword(data.email, data.password)
-}
-
 function updateLocalUserInDB(newData){
     for(let field in newData){
         localUser[field] = newData[field]
@@ -129,6 +113,23 @@ function assignPFP(user, onCompletionFunc){
             }
         }
     )
+}
+
+// Takes in a JSON from LoginScreen.js handleSignUp()
+async function registerUser(newData){
+    try{
+        await auth.createUserWithEmailAndPassword(newData.email, newData.password)
+        return await users.add({
+            email: newData.email.toLowerCase()
+        })
+    }catch(error){
+        return await Promise.reject(error)
+    }
+}
+
+// Takes in a JSON from LoginScreen.js handleLogin()
+function loginUser(data){
+    return auth.signInWithEmailAndPassword(data.email, data.password)
 }
 
 export {
