@@ -3,30 +3,35 @@ const GEOCODING_URL = "https://maps.googleapis.com/maps/api/geocode/json"
 const EARTH_RADIUS_MI = 3963.19
 
 function assignCoordsFromAddress(user, onCompletionFunc){
-    const streetAddress = user.address.replace(" ", "%20")
+    const streetAddress = user.address.replaceAll(" ", "%20")
     const fullAddress = `${streetAddress}%20${user.city}%20${user.state}%20${user.country}`
+    console.log(fullAddress)
 
     const http = new XMLHttpRequest()
-    http.open("GET", GEOCODING_URL, true)
+    http.open("GET", GEOCODING_URL + "?address=" + fullAddress + "&key=" + GOOGLE_MAPS_API_KEY, true)
 
     http.onreadystatechange = function(){
-        const success = this.readyState == 4 && this.status == 200
+        if(this.readyState == 4){
+            const success = this.status == 200
 
-        if(success){
-            geoData = JSON.parse(this.responseText);
-            user.latitude = parseFloat(geoData.results.geometry.location.lat)
-            user.longitude = parseFloat(geoData.results.geometry.location.lng)
-        }else{
-            user.latitude = NaN
-            user.longitude = NaN
-        }
+            if(success){
+                geoData = JSON.parse(this.responseText);
+                user.latitude = parseFloat(geoData.results[0].geometry.location.lat)
+                user.longitude = parseFloat(geoData.results[0].geometry.location.lng)
+                console.log("Geocode success: (" + user.latitude + ", " + user.longitude + ")")
+            }else{
+                user.latitude = NaN
+                user.longitude = NaN
+                console.log("Geocode failure: " + geoData.status)
+            }
 
-        if(onCompletionFunc){
-            onCompletionFunc(success)
+            if(onCompletionFunc){
+                onCompletionFunc(success)
+            }
         }
     };
 
-    http.send("address=" + fullAddress + "&key=" + GOOGLE_MAPS_API_KEY)
+    http.send()
 }
 
 function degToRad(x){

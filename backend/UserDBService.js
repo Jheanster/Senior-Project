@@ -44,7 +44,7 @@ function loadProspectsData(onCompletionFunc){
             .get().then((snapshot) => {
 
                 if(snapshot.empty){
-                    console.log("No users with matching country or state")
+                    console.log("No users with local country or state")
                     onCompletionFunc()
                 }
 
@@ -65,17 +65,23 @@ function loadProspectsData(onCompletionFunc){
                     }
                 })
         
-                sortedProspects = validProspects.sort((user1, user2) => user2.score - user1.score)
+                if(validProspects.length > 0){
+                    sortedProspects = validProspects.sort((user1, user2) => user2.score - user1.score)
 
-                let numPFPsLoaded = 0
-                sortedProspects.forEach((prospect) => {
-                    assignPFP(prospect, () => {
-                        numPFPsLoaded++
-                        if(numPFPsLoaded === sortedProspects.length && onCompletionFunc){
-                            onCompletionFunc()
-                        }
+                    let numPFPsLoaded = 0
+                    sortedProspects.forEach((prospect) => {
+                        assignPFP(prospect, () => {
+                            numPFPsLoaded++
+                            if(numPFPsLoaded === sortedProspects.length && onCompletionFunc){
+                                onCompletionFunc()
+                            }
+                        })
                     })
-                })
+                }else{
+                    sortedProspects = validProspects
+                    console.log("No valid prospective matches")
+                    onCompletionFunc()
+                }
             })
     } else {
         console.warn("Error: Trying to load prospects before loading the local user")
