@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useNavigation } from '@react-navigation/core'
 import { View, Text, Button, TouchableOpacity, Image, StyleSheet} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getLocalUserData } from '../../backend/UserDBService';
+import { getLocalUserData, getProspectsData } from '../../backend/UserDBService';
 import { Ionicons, AntDesign, Entypo} from '@expo/vector-icons';
 import { collection, doc, onSnapshot, setDoc, query, where, getDocs, getDoc, serverTimestamp } from "@firebase/firestore"
 import Swiper from "react-native-deck-swiper"
@@ -12,7 +12,7 @@ import generateId from '../../lib/generateId';
 
 function HomeScreen() {
     const navigation = useNavigation();
-    const [profiles,setProfiles] = useState([]);
+    const [profiles, setProfiles] = useState(getProspectsData());
     const localUser = getLocalUserData();
 
     // console.log(localUser);
@@ -65,8 +65,7 @@ function HomeScreen() {
             })
     }
 
-
-    useEffect(() => {
+    /*useEffect(() => {
         let unsub;
         const fetchCards = async () => {
 
@@ -101,9 +100,7 @@ function HomeScreen() {
 
         fetchCards();
         return unsub
-    }, [docDB])
-
-    // console.log(profiles)
+    }, [docDB])*/
 
     return (
     <SafeAreaView style={tw`flex-1`}>
