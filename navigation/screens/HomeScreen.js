@@ -65,7 +65,7 @@ function HomeScreen() {
             })
     }
 
-    /*useEffect(() => {
+    useEffect(() => {
         let unsub;
         const fetchCards = async () => {
 
@@ -100,7 +100,7 @@ function HomeScreen() {
 
         fetchCards();
         return unsub
-    }, [docDB])*/
+    }, [docDB])
 
     return (
     <SafeAreaView style={tw`flex-1`}>
