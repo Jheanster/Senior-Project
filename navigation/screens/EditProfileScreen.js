@@ -3,22 +3,23 @@ import React , { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
-import Feather from 'react-native-vector-icons/Feather'
 import * as ImagePicker from 'expo-image-picker'
 import * as FileSystem from 'expo-file-system'
 import { firebase } from '../../firebase'
 import { getLocalUserData, updateLocalUserInDB } from '../../backend/UserDBService'
+import { assignCoordsFromAddress } from '../../backend/UserLocationService'
 
 const EditProfileScreen = () => {
-    const[email,setEmail] = useState('')
-    const[name,setName] = useState('')
-    const[address,setAddress] = useState('')
-    const[bio,setBio] = useState('')
+    const localUser = getLocalUserData();
+
+    const[name,setName] = useState(localUser.name)
+    const[bio,setBio] = useState(localUser.bio)
+    const[address,setAddress] = useState(localUser.address)
+    const[city,setCity] = useState(localUser.city)
+    const[province,setProvince] = useState(localUser.state) //referring to states as 'provinces' to avoid confusion
+    const[country,setCountry] = useState(localUser.country)
     const [image,setImage] = useState(null);
     const [uploading, setUploading] = useState(false);
-
-    const localUser = getLocalUserData();
-    //console.log(localUser)
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -77,21 +78,19 @@ const EditProfileScreen = () => {
     };
 
     const submitNewData = () => {
-        // If they didnt put anything, just change what they did put
-        const data = {
-            email: email !== '' ? email : localUser.email ,
-            name: name !== '' ? name : localUser.name,
-            address: address !== '' ? address : localUser.address,
-            bio: bio !== '' ? bio : localUser.bio,
-        }
-        updateLocalUserInDB(data)
+        const newData = {name, bio, address, city, state: province, country}
 
-        if (image !== null){
-            uploadMedia();
-        }
-        
+        assignCoordsFromAddress(newData, (success) => {
+            if(success){
+                updateLocalUserInDB(newData)
+                if(image !== null){
+                    uploadMedia() //TODO: rework
+                }
+            }else{
+                Alert.alert("Unable to validate address");
+            }
+        })
     }
-
 
   return (
     <SafeAreaView>
@@ -151,12 +150,11 @@ const EditProfileScreen = () => {
                 </View>
 
                 <View style={styles.action}>
-                    <FontAwesome name='envelope-o' size={20}/>
+                    <FontAwesome name='vcard-o' size={20}/>
                     <TextInput
-                        placeholder='Email'
-                        value={email}
-                        onChangeText={text => setEmail(text)}
-                        keyboardType='email-address'
+                        placeholder='Bio'
+                        value={bio}
+                        onChangeText={text => setBio(text)}
                         placeholderTextColor='#666666'
                         autoCorrect={false}
                         style={styles.textInput}
@@ -176,11 +174,35 @@ const EditProfileScreen = () => {
                 </View>
 
                 <View style={styles.action}>
-                    <FontAwesome name='user-o' size={20}/>
+                    <Icon name='city-variant-outline' size={20}/>
                     <TextInput
-                        placeholder='Bio'
-                        value={bio}
-                        onChangeText={text => setBio(text)}
+                        placeholder='City'
+                        value={city}
+                        onChangeText={text => setCity(text)}
+                        placeholderTextColor='#666666'
+                        autoCorrect={false}
+                        style={styles.textInput}
+                    />
+                </View>
+
+                <View style={styles.action}>
+                    <Icon name='map-outline' size={20}/>
+                    <TextInput
+                        placeholder='State'
+                        value={province}
+                        onChangeText={text => setProvince(text)}
+                        placeholderTextColor='#666666'
+                        autoCorrect={false}
+                        style={styles.textInput}
+                    />
+                </View>
+
+                <View style={styles.action}>
+                    <Icon name='flag-variant-outline' size={20}/>
+                    <TextInput
+                        placeholder='Country'
+                        value={country}
+                        onChangeText={text => setCountry(text)}
                         placeholderTextColor='#666666'
                         autoCorrect={false}
                         style={styles.textInput}
