@@ -13,7 +13,7 @@ import generateId from '../../lib/generateId';
 function HomeScreen() {
     const navigation = useNavigation();
     const localUser = getLocalUserData();
-    const [profiles, setProfiles] = useState(getProspectsData());
+    const [profiles, setProfiles] = useState(getProspectsData()); //TODO: reimplement useEffect() for this
     const swiperRef = useRef(null);
     
     const handleSwipeLeft = (cardIndex) => {
@@ -63,14 +63,8 @@ function HomeScreen() {
                 cardIndex={0}
                 animateCardOpacity
                 verticalSwipe={false}
-                onSwipedLeft={(cardIndex) => {
-                    console.log("Denied")
-                    handleSwipeLeft(cardIndex)
-                }}
-                onSwipedRight={(cardIndex) => {
-                    console.log("Accepted")
-                    handleSwipeRight(cardIndex)
-                }}
+                onSwipedLeft={handleSwipeLeft}
+                onSwipedRight={handleSwipeRight}
                 backgroundColor='#4FD0E9'
                 overlayLabels={{
                     left: {

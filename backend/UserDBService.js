@@ -60,11 +60,11 @@ function loadProspectsData(onCompletionFunc){
             .where("email", "!=", localUser.email)
         
         if(DONT_LOAD_ALREADY_SEEN_PROSPECTS){
-            users.doc(localUser.id).collection("approvals").get().then(approvals => {
-                const approvalEmails = approvals.map((approval) => approval.email) //TODO: map might not work here
+            users.doc(localUser.id).collection("approvals").get().then(approvalSnapshot => {
+                const approvalEmails = approvalSnapshot.docs.map((approvalDoc) => approvalDoc.data().email)
 
-                users.doc(localUser.id).collection("rejections").get.then(rejections => {
-                    const rejectionEmails = rejections.map((rejection) => rejection.email)
+                users.doc(localUser.id).collection("rejections").get.then(rejectionSnapshot => {
+                    const rejectionEmails = rejectionSnapshot.docs.map((rejectionDoc) => rejectionDoc.data().email)
 
                     query = query.where("email", "not-in", approvalEmails)
                         .where("email", "not-in", rejectionEmails)
@@ -182,7 +182,18 @@ function addProspectRejectionToDB(){
     users.doc(localUser.id).collection("rejections").doc(prospect.id).set({email: prospect.email})
 }
 
+function loadLocalUserMatches(onLoadedFunc){
+    matches.where("users", "array-contains", localUser.id).get().then((matchesSnapshot) => {
+        matches = matchesSnapshot.docs.map((matchDoc) => ({
+            id: matchDoc.id,
+            ...matchDoc.data()
+        }))
+
+        onLoadedFunc(matches)
+    })
+}
+
 export {
     registerUser, loginUser, loadLocalUserData, getLocalUserData, loadProspectsData, getProspectsData,
-    updateLocalUserInDB, addProspectApprovalToDB, addProspectRejectionToDB
+    updateLocalUserInDB, addProspectApprovalToDB, addProspectRejectionToDB, loadLocalUserMatches
 }

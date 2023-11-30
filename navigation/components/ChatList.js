@@ -7,25 +7,13 @@ import { getLocalUserData } from '../../backend/UserDBService';
 import ChatRow from './ChatRow';
 
 const ChatList = () => {
-    const [matches,setMatches] = useState([]);
+    const [matches, setMatches] = useState([]);
     const localUser = getLocalUserData()
 
-    useEffect(() =>
-        onSnapshot(
-            query(
-                collection(docDB, 'matches'), 
-                where('usersMatched', 'array-contains', localUser.id)
-            ), 
-            (snapshot) => 
-                setMatches(
-                    snapshot.docs.map((doc) => ({
-                        id: doc.id,
-                        ...doc.data(),
-                }))
-            )
-        ),
+    useEffect(
+        () => loadLocalUserMatches((loadedMatches) => setMatches(loadedMatches)),
         [localUser]
-    );
+    )
 
     //console.log("matches: ", matches)
 
