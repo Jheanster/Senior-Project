@@ -14,23 +14,24 @@ function HomeScreen() {
     const navigation = useNavigation();
     const localUser = getLocalUserData();
     const [profiles, setProfiles] = useState(getProspectsData());
-
-    // console.log(localUser);
     const swiperRef = useRef(null);
     
     const handleSwipeLeft = (cardIndex) => {
         const userSwiped = profiles[cardIndex]
         if(userSwiped){
-            addProspectRejectionToDB(userSwiped)
             console.log(`You rejected ${userSwiped.name}`)
+            addProspectRejectionToDB(userSwiped)
         }
     }
 
     const handleSwipeRight = (cardIndex) => {
         const userSwiped = profiles[cardIndex]
         if(userSwiped){
-            addProspectApprovalToDB(userSwiped)
             console.log(`You approved ${userSwiped.name}`)
+
+            addProspectApprovalToDB(userSwiped, () => {
+                navigation.navigate("Match", {localUser, userSwiped});
+            })
         }
     }
 

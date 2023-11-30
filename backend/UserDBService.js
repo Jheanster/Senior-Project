@@ -157,7 +157,7 @@ function assignPFP(user, onCompletionFunc){
     )
 }
 
-function addProspectApprovalToDB(prospect){
+function addProspectApprovalToDB(prospect, onNewMatchFunc){
     const localApprovalRef = users.doc(localUser.id).collection("approvals").doc(prospect.id)
     localApprovalRef.get().then((localApproval) => {
         if(!localApproval.exists){
@@ -170,6 +170,8 @@ function addProspectApprovalToDB(prospect){
                         users: [localUser.id, prospect.id],
                         timestamp: serverTimestamp()
                     })
+
+                    onNewMatchFunc()
                 }
             })
         }
