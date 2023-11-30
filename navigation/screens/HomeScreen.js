@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useNavigation } from '@react-navigation/core'
 import { View, Text, Button, TouchableOpacity, Image, StyleSheet} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getLocalUserData, getProspectsData } from '../../backend/UserDBService';
+import { addProspectApprovalToDB, addProspectRejectionToDB, getLocalUserData, getProspectsData } from '../../backend/UserDBService';
 import { Ionicons, AntDesign, Entypo} from '@expo/vector-icons';
 import { collection, doc, onSnapshot, setDoc, query, where, getDocs, getDoc, serverTimestamp } from "@firebase/firestore"
 import Swiper from "react-native-deck-swiper"
@@ -12,95 +12,27 @@ import generateId from '../../lib/generateId';
 
 function HomeScreen() {
     const navigation = useNavigation();
-    const [profiles, setProfiles] = useState(getProspectsData());
     const localUser = getLocalUserData();
+    const [profiles, setProfiles] = useState(getProspectsData());
 
     // console.log(localUser);
     const swiperRef = useRef(null);
     
     const handleSwipeLeft = (cardIndex) => {
-        if(!profiles[cardIndex]) return;
-
-        // This adds a new called passes collection for the user that keeps track of the passes made on that account
-        const userSwiped = profiles[cardIndex];
-        console.log(`You swiped pass on ${userSwiped.name}`)
-        setDoc(doc(docDB, 'users', localUser.id, 'passes', userSwiped.id), userSwiped);
+        const userSwiped = profiles[cardIndex]
+        if(userSwiped){
+            addProspectRejectionToDB(userSwiped)
+            console.log(`You rejected ${userSwiped.name}`)
+        }
     }
 
     const handleSwipeRight = (cardIndex) => {
-        if(!profiles[cardIndex]) return;
-
-        // This adds a new collection called matches that keeps track of the matches made on that account
-        const userSwiped = profiles[cardIndex];
-
-        // Check if the profile matched with you
-        getDoc(doc(docDB,'users',userSwiped.id,'matches',localUser.id)).then(
-            (documentSnapshot) => {
-                if (documentSnapshot.exists()){
-                    // User has matched with you before you matched with them
-                    // Create a match
-                    console.log(`Congrats, you have matched with ${userSwiped.name}`)
-                    setDoc(doc(docDB, 'users', localUser.id, 'matches', userSwiped.id), userSwiped);
-
-                    // Create a match
-
-                    setDoc(doc(docDB,'matches',generateId(localUser.id,userSwiped.id)), {
-                        users: {
-                            [localUser.id]: localUser,
-                            [userSwiped.id]: userSwiped,
-                        },
-                        usersMatched: [localUser.id,userSwiped.id],
-                        timestamp: serverTimestamp(),
-                    });
-                    navigation.navigate('Match', {
-                        localUser,
-                        userSwiped,
-                    });
-                } else {
-                    // Local user swiped match first
-                    console.log(`You swiped match on ${userSwiped.name}`)
-                    // This adds a new called passes collection for the user that keeps track of the matches made on that account
-                    setDoc(doc(docDB, 'users', localUser.id, 'matches', userSwiped.id), userSwiped);
-                }
-            })
-    }
-
-    useEffect(() => {
-        let unsub;
-        const fetchCards = async () => {
-
-            // Get the ids of all the profiles that a user has passed on
-            const passes = await getDocs(collection(docDB,'users',localUser.id,'passes'))
-                .then(snapshot => snapshot.docs.map(doc => doc.id));
-
-            const matches = await getDocs(collection(docDB,'users',localUser.id,'matches'))
-                .then(snapshot => snapshot.docs.map(doc => doc.id));
-
-            const passedUserIds = passes.length > 0 ? passes : ['test'];
-            const matchedUserIds = matches.length > 0 ? matches : ['test'];
-
-            // console.log(passedUserIds)
-            // console.log(matchedUserIds)
-            unsub = onSnapshot(
-
-                // Show the users you haven't matched or passed already, but when I get rid of the query it works fine
-                // query(
-                    collection(docDB,'users'),
-                //     where('id', 'not-in', [...passedUserIds, ...matchedUserIds]),
-                // ),  
-                (snapshot) => {
-                setProfiles(
-                    snapshot.docs.filter(doc => doc.id !== localUser.id).map(doc => ({
-                        id: doc.id,
-                        ...doc.data(),
-                    }))
-                )
-            })
+        const userSwiped = profiles[cardIndex]
+        if(userSwiped){
+            addProspectApprovalToDB(userSwiped)
+            console.log(`You approved ${userSwiped.name}`)
         }
-
-        fetchCards();
-        return unsub
-    }, [docDB])
+    }
 
     return (
     <SafeAreaView style={tw`flex-1`}>
