@@ -3,12 +3,25 @@ import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import { getLocalUserData } from '../../backend/UserDBService';
 import getMatchedUserInfo from '../../lib/getMatchedUserInfo';
+import { collection, doc, onSnapshot, setDoc, query, where, getDocs, getDoc, serverTimestamp, addDoc, orderBy } from "@firebase/firestore"
 import tw from "twrnc"
+import { docDB } from '../../firebase';
 
 const ChatRow = ({ matchDetails }) => {
     const navigation = useNavigation();
     const localUser = getLocalUserData();
     const [matchedUserInfo, setMatchedUserInfo] = useState(null);
+    const [lastMessage, setLastMessage] = useState('');
+
+    useEffect(() => 
+        onSnapshot(
+            query(
+                collection(docDB,'matches',matchDetails.id,'messages'),
+                orderBy('timestamp','desc')
+            ), snapshot => setLastMessage(snapshot.docs[0]?.data()?.message)
+        ),
+        [matchDetails,docDB]
+    );
 
     useEffect(() => {
         setMatchedUserInfo(getMatchedUserInfo(matchDetails.users, localUser.id))
@@ -34,7 +47,7 @@ const ChatRow = ({ matchDetails }) => {
             <Text style={tw`text-lg font-semibold`}>
                 {matchedUserInfo?.name}
             </Text>
-            <Text>Say Hi!</Text>
+            <Text>{lastMessage || "Say Hi!"}</Text>
         </View>
     </TouchableOpacity>
   )

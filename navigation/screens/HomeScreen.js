@@ -79,8 +79,8 @@ function HomeScreen() {
             const passedUserIds = passes.length > 0 ? passes : ['test'];
             const matchedUserIds = matches.length > 0 ? matches : ['test'];
 
-            console.log(passedUserIds)
-            console.log(matchedUserIds)
+            // console.log(passedUserIds)
+            // console.log(matchedUserIds)
             unsub = onSnapshot(
 
                 // Show the users you haven't matched or passed already, but when I get rid of the query it works fine

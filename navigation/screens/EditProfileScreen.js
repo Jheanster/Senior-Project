@@ -83,7 +83,9 @@ const EditProfileScreen = () => {
         assignCoordsFromAddress(newData, (success) => {
             if(success){
                 updateLocalUserInDB(newData)
-                //uploadMedia()
+                if(image !== null){
+                    uploadMedia() //TODO: rework
+                }
             }else{
                 Alert.alert("Unable to validate address");
             }
