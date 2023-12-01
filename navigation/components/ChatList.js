@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { collection, doc, onSnapshot, setDoc, query, where, getDocs, getDoc, serverTimestamp } from "@firebase/firestore"
 import { docDB } from '../../firebase';
 import tw from 'twrnc'
-import { getLocalUserData } from '../../backend/UserDBService';
+import { getLocalUserData, loadLocalUserMatches } from '../../backend/UserDBService';
 import ChatRow from './ChatRow';
 
 const ChatList = () => {
