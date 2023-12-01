@@ -1,20 +1,20 @@
-import { View, Text, SafeAreaView, TextInput, Button, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, FlatList } from 'react-native'
+import { View, SafeAreaView, TextInput, Button, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Header from '../components/Header'
-import { getLocalUserData } from '../../backend/UserDBService'
+import { addMessageToDB, getLocalUserData, loadAllMessages, loadMatchedProspect } from '../../backend/UserDBService'
 import { useRoute } from '@react-navigation/native'
 import tw from 'twrnc'
 import SenderMessage from '../components/SenderMessage'
 import ReceiverMessage from '../components/ReceiverMessage'
-import { collection, doc, onSnapshot, setDoc, query, where, getDocs, getDoc, serverTimestamp, addDoc, orderBy } from "@firebase/firestore"
-import { docDB } from '../../firebase'
 
-const MessageScreen = (props) => {
+const MessageScreen = (_props) => {
   const localUser = getLocalUserData()
   const [input, setInput] = useState("")
   const [messages, setMessages] = useState([])
   const [matchedUser, setMatchedUser] = useState(null)
-  const matchDetails = useRoute()
+
+  const { params } = useRoute()
+  const { matchDetails } = params
 
   useEffect(
     () => {
@@ -25,14 +25,14 @@ const MessageScreen = (props) => {
   )
 
   const sendMessage = () => {
-    sendMessage(matchDetails, input)
+    addMessageToDB(matchDetails, input)
     setInput("")
   }
 
   return (
     <SafeAreaView style={tw`flex-1`}>
       <Header 
-        title={matchedUser.name} 
+        title={matchedUser ? matchedUser.name : ""} 
         callEnabled
       />
 

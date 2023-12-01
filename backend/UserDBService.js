@@ -1,4 +1,5 @@
 import {auth, docDB, fileDB} from "../firebase"
+import { serverTimestamp } from "@firebase/firestore"
 import {assignProspectScore} from "./ProspectScoreService"
 import {assignDistanceFromLocalUser} from "./UserLocationService"
 
@@ -181,13 +182,15 @@ function addProspectRejectionToDB(prospect){
 }
 
 function loadLocalUserMatches(onLoadedFunc){
-    matchesCol.where("users", "array-contains", localUser.id).get().then((matchesSnapshot) => {
+    matchesCol.where("userIDs", "array-contains", localUser.id).get().then((matchesSnapshot) => {
         const matches = matchesSnapshot.docs.map((matchDoc) => getDataFromDoc(matchDoc))
         onLoadedFunc(matches)
     })
 }
 
 function loadMatchedProspect(match, onLoadedFunc){
+    console.log("Match: " + match)
+    console.log("UserIDS: " + match.userIDS)
     const prospectID = match.userIDs[0] === localUser.id ? match.userIDs[1] : match.userIDs[0]
 
     usersCol.doc(prospectID).get().then((userDoc) => {
@@ -215,7 +218,7 @@ function loadAllMessages(match, onLoadedFunc){
     })
 }
 
-function sendMessage(match, text){
+function addMessageToDB(match, text){
     matchesCol.doc(match.id).collection("messages").add({
         userID: localUser.id,
         timestamp: serverTimestamp(),
@@ -226,5 +229,5 @@ function sendMessage(match, text){
 export {
     registerUser, loginUser, loadLocalUserData, getLocalUserData, loadProspectsData, getProspectsData,
     updateLocalUserInDB, addProspectApprovalToDB, addProspectRejectionToDB, loadLocalUserMatches,
-    loadMatchedProspect, loadLastMessage, loadAllMessages, sendMessage
+    loadMatchedProspect, loadLastMessage, loadAllMessages, addMessageToDB
 }

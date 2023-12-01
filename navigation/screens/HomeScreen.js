@@ -4,7 +4,6 @@ import { View, Text, Button, TouchableOpacity, Image, StyleSheet} from 'react-na
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { addProspectApprovalToDB, addProspectRejectionToDB, getLocalUserData, getProspectsData } from '../../backend/UserDBService';
 import { Ionicons, AntDesign, Entypo} from '@expo/vector-icons';
-import { collection, doc, onSnapshot, setDoc, query, where, getDocs, getDoc, serverTimestamp } from "@firebase/firestore"
 import Swiper from "react-native-deck-swiper"
 import tw from 'twrnc';
 import { docDB } from '../../firebase';
