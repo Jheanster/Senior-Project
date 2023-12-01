@@ -18,14 +18,15 @@ const MessageScreen = (_props) => {
 
   useEffect(
     () => {
-      loadAllMessages(matchDetails, (loadedMessages) => setMessages(loadedMessages))
       loadMatchedProspect(matchDetails, (loadedUser) => setMatchedUser(loadedUser))
+      loadAllMessages(matchDetails, (loadedMessages) => setMessages(loadedMessages))
     },
     [matchDetails]
   )
 
   const sendMessage = () => {
-    addMessageToDB(matchDetails, input)
+    const newMessage = addMessageToDB(matchDetails, input)
+    setMessages([newMessage, ...messages])
     setInput("")
   }
 
@@ -48,7 +49,7 @@ const MessageScreen = (_props) => {
             style={tw`pl-4`}
             keyExtractor={item => item.id}
             renderItem={({item: message}) => 
-              message.userId === localUser.id ? (
+              message.userID === localUser.id ? (
                 <SenderMessage key={message.id} message={message}/>
               ) : (
                 <ReceiverMessage key={message.id} message={message} user={matchedUser}/>

@@ -217,11 +217,14 @@ function loadAllMessages(match, onLoadedFunc){
 }
 
 function addMessageToDB(match, text){
-    matchesCol.doc(match.id).collection("messages").add({
+    const message = {
         userID: localUser.id,
         timestamp: serverTimestamp(),
         text
-    })
+    }
+
+    matchesCol.doc(match.id).collection("messages").add(message)
+    return message
 }
 
 export {
