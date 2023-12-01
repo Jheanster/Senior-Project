@@ -1,7 +1,6 @@
 import { View, Text, SafeAreaView, TextInput, Button, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Header from '../components/Header'
-import getMatchedUserInfo from '../../lib/getMatchedUserInfo'
 import { getLocalUserData } from '../../backend/UserDBService'
 import { useRoute } from '@react-navigation/native'
 import tw from 'twrnc'
@@ -27,14 +26,13 @@ const MessageScreen = (props) => {
 
   const sendMessage = () => {
     sendMessage(matchDetails, input)
-    setInput("");
+    setInput("")
   }
-
 
   return (
     <SafeAreaView style={tw`flex-1`}>
       <Header 
-        title={getMatchedUserInfo(matchDetails.users, localUser.id).name} 
+        title={matchedUser.name} 
         callEnabled
       />
 
@@ -53,7 +51,7 @@ const MessageScreen = (props) => {
               message.userId === localUser.id ? (
                 <SenderMessage key={message.id} message={message}/>
               ) : (
-                <ReceiverMessage key={message.id} message={message}/>
+                <ReceiverMessage key={message.id} message={message} user={matchedUser}/>
               )
             }
           />

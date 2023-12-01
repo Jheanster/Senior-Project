@@ -2,7 +2,6 @@ import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import { getLocalUserData, loadLastMessage, loadMatchedProspect } from '../../backend/UserDBService';
-import getMatchedUserInfo from '../../lib/getMatchedUserInfo';
 import { collection, doc, onSnapshot, setDoc, query, where, getDocs, getDoc, serverTimestamp, addDoc, orderBy } from "@firebase/firestore"
 import tw from "twrnc"
 import { docDB } from '../../firebase';
