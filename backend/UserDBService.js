@@ -55,9 +55,7 @@ function getLocalUserData(){
 
 function loadProspectsData(onCompletionFunc){
     if(localUser != null){
-        const query = usersCol.where("country", "==", localUser.country)
-            .where("state", "==", localUser.state)
-            .where("email", "!=", localUser.email)
+        let query = usersCol.where("country", "==", localUser.country).where("state", "==", localUser.state)
         
         if(DONT_LOAD_ALREADY_SEEN_PROSPECTS){
             usersCol.doc(localUser.id).collection("approvals").get().then(approvalSnapshot => {
@@ -65,18 +63,14 @@ function loadProspectsData(onCompletionFunc){
 
                 usersCol.doc(localUser.id).collection("rejections").get().then(rejectionSnapshot => {
                     const rejectionEmails = rejectionSnapshot.docs.map((rejectionDoc) => rejectionDoc.data().email)
+                    const blacklist = [localUser.email, ...approvalEmails, ...rejectionEmails]
 
-                    if(approvalEmails.length > 0){
-                        query = query.where("email", "not-in", approvalEmails)
-                    }
-                    if(rejectionEmails.length > 0){
-                        query = query.where("email", "not-in", rejectionEmails)
-                    }
-
+                    query = query.where("email", "not-in", blacklist)
                     loadProspectsDataFromQuery(query, onCompletionFunc)
                 })
             })
         }else{
+            query = query.where("email", "!=", localUser.email)
             loadProspectsDataFromQuery(query, onCompletionFunc)
         }
     } else {
