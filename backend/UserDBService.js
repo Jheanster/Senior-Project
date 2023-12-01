@@ -201,19 +201,24 @@ function loadMatchedProspect(match, onLoadedFunc){
     })
 }
 
-function loadLastMessage(match, onLoadedFunc){
-    matchesCol.doc(match.id).collection("messages").orderBy("timestamp", "desc").limit(1)
-        .get().then((messagesSnapshot) => {
+function listenForMostRecentMessage(match, onUpdatedFunc){
+    const unsubscribe = matchesCol.doc(match.id).collection("messages").orderBy("timestamp", "desc").limit(1)
+        .onSnapshot((messagesSnapshot) => {
             const message = messagesSnapshot.size === 1 ? getDataFromDoc(messagesSnapshot.docs[0]) : null
-            onLoadedFunc(message)
+            onUpdatedFunc(message)
         })
+
+    return unsubscribe
 }
 
-function loadAllMessages(match, onLoadedFunc){
-    matchesCol.doc(match.id).collection("messages").orderBy("timestamp", "desc").get().then((messagesSnapshot) => {
-        const messages = messagesSnapshot.docs.map((messageDoc) => getDataFromDoc(messageDoc))
-        onLoadedFunc(messages)
-    })
+function listenForAllMessages(match, onUpdatedFunc){
+    const unsubscribe = matchesCol.doc(match.id).collection("messages").orderBy("timestamp", "desc")
+        .onSnapshot((messagesSnapshot) => {
+            const messages = messagesSnapshot.docs.map((messageDoc) => getDataFromDoc(messageDoc))
+            onUpdatedFunc(messages)
+        })
+    
+    return unsubscribe
 }
 
 function addMessageToDB(match, text){
@@ -230,5 +235,5 @@ function addMessageToDB(match, text){
 export {
     registerUser, loginUser, loadLocalUserData, getLocalUserData, loadProspectsData, getProspectsData,
     updateLocalUserInDB, addProspectApprovalToDB, addProspectRejectionToDB, loadLocalUserMatches,
-    loadMatchedProspect, loadLastMessage, loadAllMessages, addMessageToDB
+    loadMatchedProspect, listenForMostRecentMessage, listenForAllMessages, addMessageToDB
 }

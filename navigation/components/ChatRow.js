@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
-import { getLocalUserData, loadLastMessage, loadMatchedProspect } from '../../backend/UserDBService';
+import { getLocalUserData, listenForMostRecentMessage, loadMatchedProspect } from '../../backend/UserDBService';
 import { collection, doc, onSnapshot, setDoc, query, where, getDocs, getDoc, serverTimestamp, addDoc, orderBy } from "@firebase/firestore"
 import tw from "twrnc"
 import { docDB } from '../../firebase';
@@ -14,10 +14,13 @@ const ChatRow = ({ matchDetails }) => {
 
     useEffect(
         () => {
-            loadLastMessage(matchDetails, (loadedmessage) => setLastMessage(loadedmessage))
             loadMatchedProspect(matchDetails, (loadedUser) => setMatchedUser(loadedUser))
+            const unsubscribe = listenForMostRecentMessage(
+                matchDetails, (loadedmessage) => setLastMessage(loadedmessage)
+            )
+            return unsubscribe
         },
-        [matchDetails, localUser]
+        [matchDetails]
     )
 
     return (

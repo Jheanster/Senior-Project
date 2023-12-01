@@ -1,11 +1,12 @@
 import { View, SafeAreaView, TextInput, Button, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Header from '../components/Header'
-import { addMessageToDB, getLocalUserData, loadAllMessages, loadMatchedProspect } from '../../backend/UserDBService'
+import { addMessageToDB, getLocalUserData, listenForAllMessages, loadMatchedProspect } from '../../backend/UserDBService'
 import { useRoute } from '@react-navigation/native'
 import tw from 'twrnc'
 import SenderMessage from '../components/SenderMessage'
 import ReceiverMessage from '../components/ReceiverMessage'
+import { docDB } from '../../firebase';
 
 const MessageScreen = (_props) => {
   const localUser = getLocalUserData()
@@ -19,14 +20,14 @@ const MessageScreen = (_props) => {
   useEffect(
     () => {
       loadMatchedProspect(matchDetails, (loadedUser) => setMatchedUser(loadedUser))
-      loadAllMessages(matchDetails, (loadedMessages) => setMessages(loadedMessages))
+      const unsubscribe = listenForAllMessages(matchDetails, (loadedMessages) => setMessages(loadedMessages))
+      return unsubscribe
     },
     [matchDetails]
   )
 
   const sendMessage = () => {
-    const newMessage = addMessageToDB(matchDetails, input)
-    setMessages([newMessage, ...messages])
+    addMessageToDB(matchDetails, input)
     setInput("")
   }
 
