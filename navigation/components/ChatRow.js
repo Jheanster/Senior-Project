@@ -14,39 +14,35 @@ const ChatRow = ({ matchDetails }) => {
     const [lastMessage, setLastMessage] = useState(null)
 
     useEffect(
-        () => loadLastMessage(matchDetails, (message) => setLastMessage(message)),
-        [matchDetails]
-    )
-
-    useEffect(
-        () => loadMatchedProspect(matchDetails, (user) => setMatchedUser(user)),
+        () => {
+            loadLastMessage(matchDetails, (loadedmessage) => setLastMessage(loadedmessage))
+            loadMatchedProspect(matchDetails, (loadedUser) => setMatchedUser(loadedUser))
+        },
         [matchDetails, localUser]
     )
 
-    //console.log("Matched user info: ", matchedUserInfo)
+    return (
+        <TouchableOpacity 
+            style={[tw`flex-row items-center py-3 px-5 bg-white mx-3 my-1 rounded-lg`, styles.cardShadow]}
+            onPress={() => {
+                navigation.navigate('Message',{
+                    matchDetails,
+                })
+            }}
+        >
+            <Image
+                style={tw`rounded-full h-16 w-16 mr-4`}
+                source={{ uri: matchedUser?.pfp}}
+            />
 
-  return (
-    <TouchableOpacity 
-        style={[tw`flex-row items-center py-3 px-5 bg-white mx-3 my-1 rounded-lg`, styles.cardShadow]}
-        onPress={() => {
-            navigation.navigate('Message',{
-                matchDetails,
-            })
-        }}
-    >
-        <Image
-            style={tw`rounded-full h-16 w-16 mr-4`}
-            source={{ uri: matchedUser?.pfp}}
-        />
-
-        <View>
-            <Text style={tw`text-lg font-semibold`}>
-                {matchedUser?.name}
-            </Text>
-            <Text>{lastMessage?.text || "Say Hi!"}</Text>
-        </View>
-    </TouchableOpacity>
-  )
+            <View>
+                <Text style={tw`text-lg font-semibold`}>
+                    {matchedUser?.name}
+                </Text>
+                <Text>{lastMessage?.text || "Say Hi!"}</Text>
+            </View>
+        </TouchableOpacity>
+    )
 }
 
 export default ChatRow

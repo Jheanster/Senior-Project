@@ -26,16 +26,16 @@ function loginUser(data){
     return auth.signInWithEmailAndPassword(data.email, data.password)
 }
 
-function getUserDataFromDoc(userDoc){
-    const userData = userDoc.data()
-    userData.id = userDoc.id
-    return userData
+function getDataFromDoc(doc){
+    const data = doc.data()
+    data.id = doc.id
+    return data
 }
 
 function loadLocalUserData(email, onCompletionFunc){
     usersCol.where("email", "==", email).get().then((snapshot) => {
         if(snapshot.size === 1){
-            localUser = getUserDataFromDoc(snapshot.docs[0])
+            localUser = getDataFromDoc(snapshot.docs[0])
             assignPFP(localUser, () => {
                 if(onCompletionFunc){
                     onCompletionFunc()
@@ -90,7 +90,7 @@ function loadProspectsDataFromQuery(query, onCompletionFunc){
         const validProspects = []
 
         snapshot.forEach((otherUserDoc) => {
-            const otherUser = getUserDataFromDoc(otherUserDoc)
+            const otherUser = getDataFromDoc(otherUserDoc)
             console.log("Loaded prospect: " + otherUser.name)
             assignDistanceFromLocalUser(localUser, otherUser)
 
@@ -184,11 +184,7 @@ function addProspectRejectionToDB(){
 
 function loadLocalUserMatches(onLoadedFunc){
     matchesCol.where("users", "array-contains", localUser.id).get().then((matchesSnapshot) => {
-        const matches = matchesSnapshot.docs.map((matchDoc) => ({
-            id: matchDoc.id,
-            ...matchDoc.data()
-        }))
-
+        const matches = matchesSnapshot.docs.map((matchDoc) => getDataFromDoc(matchDoc))
         onLoadedFunc(matches)
     })
 }
@@ -198,7 +194,7 @@ function loadMatchedProspect(match, onLoadedFunc){
 
     usersCol.doc(prospectID).get().then((userDoc) => {
         if(userDoc.exists){
-            onLoadedFunc(getUserDataFromDoc(userDoc))
+            onLoadedFunc(getDataFromDoc(userDoc))
         }else{
             console.warn("Matched prospect '" + prospectID + "' not found")
             onLoadedFunc(null)
@@ -208,13 +204,29 @@ function loadMatchedProspect(match, onLoadedFunc){
 
 function loadLastMessage(match, onLoadedFunc){
     matchesCol.doc(match.id).collection("messages").orderBy("timestamp", "desc").limit(1)
-        .get().then(messageSnapshot => {
-            onLoadedFunc(messageSnapshot.docs[0]?.data())
+        .get().then((messagesSnapshot) => {
+            const message = messagesSnapshot.size === 1 ? getDataFromDoc(messagesSnapshot.docs[0]) : null
+            onLoadedFunc(message)
         })
+}
+
+function loadAllMessages(match, onLoadedFunc){
+    matchesCol.doc(match.id).collection("messages").orderBy("timestamp", "desc").get().then((messagesSnapshot) => {
+        const messages = messagesSnapshot.docs.map((messageDoc) => getDataFromDoc(messageDoc))
+        onLoadedFunc(messages)
+    })
+}
+
+function sendMessage(match, text){
+    matchesCol.doc(match.id).collection("messages").add({
+        userID: localUser.id,
+        timestamp: serverTimestamp(),
+        text
+    })
 }
 
 export {
     registerUser, loginUser, loadLocalUserData, getLocalUserData, loadProspectsData, getProspectsData,
     updateLocalUserInDB, addProspectApprovalToDB, addProspectRejectionToDB, loadLocalUserMatches,
-    loadMatchedProspect, loadLastMessage
+    loadMatchedProspect, loadLastMessage, loadAllMessages, sendMessage
 }

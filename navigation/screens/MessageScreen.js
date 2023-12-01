@@ -12,38 +12,21 @@ import { docDB } from '../../firebase'
 
 const MessageScreen = (props) => {
   const localUser = getLocalUserData()
-  const [input,setInput] = useState("");
-  const [messages,setMessages] = useState([]);
+  const [input, setInput] = useState("")
+  const [messages, setMessages] = useState([])
+  const [matchedUser, setMatchedUser] = useState(null)
+  const matchDetails = useRoute()
 
-  const {params} = useRoute();
-  const { matchDetails } = params;
-  // console.log("LocalUser: ", localUser)
-  // console.log("matchDetials.users: ", matchDetails.users[localUser.id])
-
-  // console.log(props.matchDetails);
-
-
-  useEffect(() => 
-    onSnapshot(
-      query(
-        collection(docDB,'matches',matchDetails.id, 'messages'),
-        orderBy('timestamp','desc')
-      ), snapshot => setMessages(snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-      })))
-    )
-  , [matchDetails, docDB])
+  useEffect(
+    () => {
+      loadAllMessages(matchDetails, (loadedMessages) => setMessages(loadedMessages))
+      loadMatchedProspect(matchDetails, (loadedUser) => setMatchedUser(loadedUser))
+    },
+    [matchDetails]
+  )
 
   const sendMessage = () => {
-    addDoc(collection(docDB, 'matches', matchDetails.id, 'messages'), {
-      timestamp: serverTimestamp(),
-      userId: localUser.id,
-      name: localUser.name,
-      pfp: matchDetails.users[localUser.id].pfp,
-      message: input,
-    });
-
+    sendMessage(matchDetails, input)
     setInput("");
   }
 
