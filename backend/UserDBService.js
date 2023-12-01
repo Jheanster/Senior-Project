@@ -189,8 +189,6 @@ function loadLocalUserMatches(onLoadedFunc){
 }
 
 function loadMatchedProspect(match, onLoadedFunc){
-    console.log("Match: " + match)
-    console.log("UserIDS: " + match.userIDS)
     const prospectID = match.userIDs[0] === localUser.id ? match.userIDs[1] : match.userIDs[0]
 
     usersCol.doc(prospectID).get().then((userDoc) => {
