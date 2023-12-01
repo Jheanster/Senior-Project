@@ -182,7 +182,7 @@ function addProspectApprovalToDB(prospect, onNewMatchFunc){
     })
 }
 
-function addProspectRejectionToDB(){
+function addProspectRejectionToDB(prospect){
     usersCol.doc(localUser.id).collection("rejections").doc(prospect.id).set({email: prospect.email})
 }
 
