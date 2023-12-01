@@ -63,7 +63,7 @@ function loadProspectsData(onCompletionFunc){
             usersCol.doc(localUser.id).collection("approvals").get().then(approvalSnapshot => {
                 const approvalEmails = approvalSnapshot.docs.map((approvalDoc) => approvalDoc.data().email)
 
-                usersCol.doc(localUser.id).collection("rejections").get.then(rejectionSnapshot => {
+                usersCol.doc(localUser.id).collection("rejections").get().then(rejectionSnapshot => {
                     const rejectionEmails = rejectionSnapshot.docs.map((rejectionDoc) => rejectionDoc.data().email)
 
                     query = query.where("email", "not-in", approvalEmails)
