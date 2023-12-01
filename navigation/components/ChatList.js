@@ -15,23 +15,20 @@ const ChatList = () => {
         [localUser]
     )
 
-    //console.log("matches: ", matches)
-
-  return (
-    matches.length > 0 ? (
-        <FlatList
-            style={tw`h-full`}
-            data={matches}
-            keyExtractor={item => item.id}
-            renderItem={({item}) => <ChatRow matchDetails={item}/>}
-        />
-    ) : (
-        <View style={tw`p-5`}>
-            <Text style={tw`text-center text-lg`}>No matches at the moment</Text>
-        </View>
+    return (
+        matches.length > 0 ? (
+            <FlatList
+                style={tw`h-full`}
+                data={matches}
+                keyExtractor={item => item.id}
+                renderItem={({item}) => <ChatRow matchDetails={item}/>}
+            />
+        ) : (
+            <View style={tw`p-5`}>
+                <Text style={tw`text-center text-lg`}>No matches at the moment</Text>
+            </View>
+        )
     )
-    
-  )
 }
 
 export default ChatList

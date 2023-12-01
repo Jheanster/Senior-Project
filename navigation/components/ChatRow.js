@@ -1,31 +1,27 @@
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
-import { getLocalUserData } from '../../backend/UserDBService';
+import { getLocalUserData, loadLastMessage, loadMatchedProspect } from '../../backend/UserDBService';
 import getMatchedUserInfo from '../../lib/getMatchedUserInfo';
 import { collection, doc, onSnapshot, setDoc, query, where, getDocs, getDoc, serverTimestamp, addDoc, orderBy } from "@firebase/firestore"
 import tw from "twrnc"
 import { docDB } from '../../firebase';
 
 const ChatRow = ({ matchDetails }) => {
-    const navigation = useNavigation();
-    const localUser = getLocalUserData();
-    const [matchedUserInfo, setMatchedUserInfo] = useState(null);
-    const [lastMessage, setLastMessage] = useState('');
+    const navigation = useNavigation()
+    const localUser = getLocalUserData()
+    const [matchedUser, setMatchedUser] = useState(null)
+    const [lastMessage, setLastMessage] = useState(null)
 
-    useEffect(() => 
-        onSnapshot(
-            query(
-                collection(docDB,'matches',matchDetails.id,'messages'),
-                orderBy('timestamp','desc')
-            ), snapshot => setLastMessage(snapshot.docs[0]?.data()?.message)
-        ),
-        [matchDetails,docDB]
-    );
+    useEffect(
+        () => loadLastMessage(matchDetails, (message) => setLastMessage(message)),
+        [matchDetails]
+    )
 
-    useEffect(() => {
-        setMatchedUserInfo(getMatchedUserInfo(matchDetails.users, localUser.id))
-    }, [matchDetails, localUser])
+    useEffect(
+        () => loadMatchedProspect(matchDetails, (user) => setMatchedUser(user)),
+        [matchDetails, localUser]
+    )
 
     //console.log("Matched user info: ", matchedUserInfo)
 
@@ -40,14 +36,14 @@ const ChatRow = ({ matchDetails }) => {
     >
         <Image
             style={tw`rounded-full h-16 w-16 mr-4`}
-            source={{ uri: matchedUserInfo?.pfp}}
+            source={{ uri: matchedUser?.pfp}}
         />
 
         <View>
             <Text style={tw`text-lg font-semibold`}>
-                {matchedUserInfo?.name}
+                {matchedUser?.name}
             </Text>
-            <Text>{lastMessage || "Say Hi!"}</Text>
+            <Text>{lastMessage ? lastMessage.text : "Say Hi!"}</Text>
         </View>
     </TouchableOpacity>
   )

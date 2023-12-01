@@ -5,8 +5,8 @@ import {assignDistanceFromLocalUser} from "./UserLocationService"
 const MAX_DISTANCE_MI = 25
 const DONT_LOAD_ALREADY_SEEN_PROSPECTS = true; //for testing purposes
 
-const users = docDB.collection("users")
-const matches = docDB.collection("matches")
+const usersCol = docDB.collection("users")
+const matchesCol = docDB.collection("matches")
 
 var localUser = null
 var sortedProspects = null
@@ -14,7 +14,7 @@ var sortedProspects = null
 async function registerUser(newData){
     try{
         await auth.createUserWithEmailAndPassword(newData.email, newData.password)
-        return await users.add({
+        return await usersCol.add({
             email: newData.email.toLowerCase()
         })
     }catch(error){
@@ -33,7 +33,7 @@ function getUserDataFromDoc(userDoc){
 }
 
 function loadLocalUserData(email, onCompletionFunc){
-    users.where("email", "==", email).get().then((snapshot) => {
+    usersCol.where("email", "==", email).get().then((snapshot) => {
         if(snapshot.size === 1){
             localUser = getUserDataFromDoc(snapshot.docs[0])
             assignPFP(localUser, () => {
@@ -55,15 +55,15 @@ function getLocalUserData(){
 
 function loadProspectsData(onCompletionFunc){
     if(localUser != null){
-        const query = users.where("country", "==", localUser.country)
+        const query = usersCol.where("country", "==", localUser.country)
             .where("state", "==", localUser.state)
             .where("email", "!=", localUser.email)
         
         if(DONT_LOAD_ALREADY_SEEN_PROSPECTS){
-            users.doc(localUser.id).collection("approvals").get().then(approvalSnapshot => {
+            usersCol.doc(localUser.id).collection("approvals").get().then(approvalSnapshot => {
                 const approvalEmails = approvalSnapshot.docs.map((approvalDoc) => approvalDoc.data().email)
 
-                users.doc(localUser.id).collection("rejections").get.then(rejectionSnapshot => {
+                usersCol.doc(localUser.id).collection("rejections").get.then(rejectionSnapshot => {
                     const rejectionEmails = rejectionSnapshot.docs.map((rejectionDoc) => rejectionDoc.data().email)
 
                     query = query.where("email", "not-in", approvalEmails)
@@ -132,7 +132,7 @@ function updateLocalUserInDB(newData){
     for(let field in newData){
         localUser[field] = newData[field]
     }
-    users.doc(localUser.id).update(newData)
+    usersCol.doc(localUser.id).update(newData)
 }
 
 function getPFPRef(user){
@@ -158,16 +158,16 @@ function assignPFP(user, onCompletionFunc){
 }
 
 function addProspectApprovalToDB(prospect, onNewMatchFunc){
-    const localApprovalRef = users.doc(localUser.id).collection("approvals").doc(prospect.id)
+    const localApprovalRef = usersCol.doc(localUser.id).collection("approvals").doc(prospect.id)
     localApprovalRef.get().then((localApproval) => {
         if(!localApproval.exists){
             localApprovalRef.set({email: prospect.email})
 
-            const prospectApprovalRef = users.doc(prospect.id).collection("approvals").doc(localUser.id)
+            const prospectApprovalRef = usersCol.doc(prospect.id).collection("approvals").doc(localUser.id)
             prospectApprovalRef.get().then((prospectApproval) => {
                 if(prospectApproval.exists){
-                    matches.add({
-                        users: [localUser.id, prospect.id],
+                    matchesCol.add({
+                        userIDs: [localUser.id, prospect.id],
                         timestamp: serverTimestamp()
                     })
 
@@ -179,12 +179,12 @@ function addProspectApprovalToDB(prospect, onNewMatchFunc){
 }
 
 function addProspectRejectionToDB(){
-    users.doc(localUser.id).collection("rejections").doc(prospect.id).set({email: prospect.email})
+    usersCol.doc(localUser.id).collection("rejections").doc(prospect.id).set({email: prospect.email})
 }
 
 function loadLocalUserMatches(onLoadedFunc){
-    matches.where("users", "array-contains", localUser.id).get().then((matchesSnapshot) => {
-        matches = matchesSnapshot.docs.map((matchDoc) => ({
+    matchesCol.where("users", "array-contains", localUser.id).get().then((matchesSnapshot) => {
+        const matches = matchesSnapshot.docs.map((matchDoc) => ({
             id: matchDoc.id,
             ...matchDoc.data()
         }))
@@ -193,7 +193,28 @@ function loadLocalUserMatches(onLoadedFunc){
     })
 }
 
+function loadMatchedProspect(match, onLoadedFunc){
+    const prospectID = match.userIDs[0] === localUser.id ? match.userIDs[1] : match.userIDs[0]
+
+    usersCol.doc(prospectID).get().then((userDoc) => {
+        if(userDoc.exists){
+            onLoadedFunc(getUserDataFromDoc(userDoc))
+        }else{
+            console.warn("Matched prospect '" + prospectID + "' not found")
+            onLoadedFunc(null)
+        }
+    })
+}
+
+function loadLastMessage(match, onLoadedFunc){
+    matchesCol.doc(match.id).collection("messages").orderBy("timestamp", "desc").limit(1)
+        .get().then(messageSnapshot => {
+            onLoadedFunc(messageSnapshot.docs[0]?.data())
+        })
+}
+
 export {
     registerUser, loginUser, loadLocalUserData, getLocalUserData, loadProspectsData, getProspectsData,
-    updateLocalUserInDB, addProspectApprovalToDB, addProspectRejectionToDB, loadLocalUserMatches
+    updateLocalUserInDB, addProspectApprovalToDB, addProspectRejectionToDB, loadLocalUserMatches,
+    loadMatchedProspect, loadLastMessage
 }
