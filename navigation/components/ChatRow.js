@@ -43,7 +43,7 @@ const ChatRow = ({ matchDetails }) => {
             <Text style={tw`text-lg font-semibold`}>
                 {matchedUser?.name}
             </Text>
-            <Text>{lastMessage ? lastMessage.text : "Say Hi!"}</Text>
+            <Text>{lastMessage?.text || "Say Hi!"}</Text>
         </View>
     </TouchableOpacity>
   )
