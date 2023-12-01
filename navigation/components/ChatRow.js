@@ -24,8 +24,8 @@ const ChatRow = ({ matchDetails }) => {
     );
 
     useEffect(() => {
-        setMatchedUserInfo(getMatchedUserInfo(matchDetails.users, localUser.id))
-    }, [matchDetails, localUser])
+        setMatchedUserInfo(matchDetails.otherUser)
+    }, [matchDetails])
 
     //console.log("Matched user info: ", matchedUserInfo)
 

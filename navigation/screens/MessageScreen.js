@@ -1,7 +1,6 @@
 import { View, Text, SafeAreaView, TextInput, Button, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Header from '../components/Header'
-import getMatchedUserInfo from '../../lib/getMatchedUserInfo'
 import { getLocalUserData } from '../../backend/UserDBService'
 import { useRoute } from '@react-navigation/native'
 import tw from 'twrnc'
@@ -15,7 +14,7 @@ const MessageScreen = (props) => {
   const [input,setInput] = useState("");
   const [messages,setMessages] = useState([]);
 
-  const {params} = useRoute();
+  const { params } = useRoute();
   const { matchDetails } = params;
   // console.log("LocalUser: ", localUser)
   // console.log("matchDetials.users: ", matchDetails.users[localUser.id])
@@ -35,12 +34,14 @@ const MessageScreen = (props) => {
     )
   , [matchDetails, docDB])
 
+  // console.log(matchDetails.localUser)
+
   const sendMessage = () => {
     addDoc(collection(docDB, 'matches', matchDetails.id, 'messages'), {
       timestamp: serverTimestamp(),
       userId: localUser.id,
       name: localUser.name,
-      pfp: matchDetails.users[localUser.id].pfp,
+      pfp: matchDetails.localUser.pfp,
       message: input,
     });
 
@@ -51,7 +52,7 @@ const MessageScreen = (props) => {
   return (
     <SafeAreaView style={tw`flex-1`}>
       <Header 
-        title={getMatchedUserInfo(matchDetails.users, localUser.id).name} 
+        title={matchDetails.otherUser.name} 
         callEnabled
       />
 

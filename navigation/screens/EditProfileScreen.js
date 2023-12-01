@@ -8,6 +8,7 @@ import * as FileSystem from 'expo-file-system'
 import { firebase } from '../../firebase'
 import { getLocalUserData, updateLocalUserInDB } from '../../backend/UserDBService'
 import { assignCoordsFromAddress } from '../../backend/UserLocationService'
+import Header from '../components/Header'
 
 const EditProfileScreen = () => {
     const localUser = getLocalUserData();
@@ -19,6 +20,7 @@ const EditProfileScreen = () => {
     const[province,setProvince] = useState(localUser.state) //referring to states as 'provinces' to avoid confusion
     const[country,setCountry] = useState(localUser.country)
     const [image,setImage] = useState(null);
+    const [age,setAge] = useState(localUser.age);
     const [uploading, setUploading] = useState(false);
 
     const pickImage = async () => {
@@ -86,6 +88,7 @@ const EditProfileScreen = () => {
                 if(image !== null){
                     uploadMedia() //TODO: rework
                 }
+                Alert.alert("Information updated")
             }else{
                 Alert.alert("Unable to validate address");
             }
@@ -94,7 +97,7 @@ const EditProfileScreen = () => {
 
   return (
     <SafeAreaView>
-        
+        <Header title='Edit Profile'/>
         <View style={styles.container}>
             <View style={{marginLeft: 20, marginRight: 20}}>
                 <View style={{alignItems: 'center'}}>
@@ -156,7 +159,7 @@ const EditProfileScreen = () => {
                         value={bio}
                         onChangeText={text => setBio(text)}
                         placeholderTextColor='#666666'
-                        autoCorrect={false}
+                        autoCorrect={true}
                         style={styles.textInput}
                     />
                 </View>
@@ -205,6 +208,17 @@ const EditProfileScreen = () => {
                         onChangeText={text => setCountry(text)}
                         placeholderTextColor='#666666'
                         autoCorrect={false}
+                        style={styles.textInput}
+                    />
+                </View>
+
+                <View style={styles.action}>
+                    <Icon name='flag-variant-outline' size={20}/>
+                    <TextInput
+                        placeholder='Age'
+                        onChangeText={text => setAge(text)}
+                        placeholderTextColor='#666666'
+                        keyboardType='numeric'
                         style={styles.textInput}
                     />
                 </View>

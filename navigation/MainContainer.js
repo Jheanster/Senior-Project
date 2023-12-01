@@ -29,7 +29,7 @@ const Stack = createNativeStackNavigator();
 
 function EditProfile(){
     return(
-        <Stack.Navigator>
+        <Stack.Navigator screenOptions={{headerShown: false}}>
             <Stack.Screen name='Settings' component={SettingsScreen}/>
             <Stack.Screen name='Edit Profile' component={EditProfileScreen}/>
         </Stack.Navigator>

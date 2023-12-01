@@ -107,7 +107,7 @@ function HomeScreen() {
         {/* Header */}
             <View style={tw`items-center relative`}>
                 <TouchableOpacity style={tw`absolute left-5 top-3`} onPress={() => navigation.navigate("Edit")}>
-                    <Image source={{uri: localUser.pfp}} style={tw`h-10 w-10 rounded-full`} />
+                    <Image source={{uri: localUser.pfp}} style={tw`h-12 w-12 rounded-full`} />
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={() => navigation.navigate("Modal")}>
@@ -115,7 +115,7 @@ function HomeScreen() {
                 </TouchableOpacity>
 
                 <TouchableOpacity style={tw`absolute right-5 top-3`} onPress={() => navigation.navigate("Chat")}>
-                    <Ionicons name='chatbubbles-sharp' size={30}/>
+                    <Ionicons name='chatbubbles-sharp' size={35}/>
                 </TouchableOpacity>
             </View>
         {/* End of Header */}
