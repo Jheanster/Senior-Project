@@ -156,6 +156,25 @@ function assignPFP(user, onCompletionFunc){
     )
 }
 
+async function updateLocalUserPFPInDB(image){
+    try{
+        const { uri } = await FileSystem.getInfoAsync(image)
+
+        const blob = await new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest()
+            xhr.onload = () => resolve(xhr.response)
+            xhr.onerror = () => reject(new TypeError("Network request failed"))
+            xhr.responseType = "blob"
+            xhr.open("GET", uri, true)
+            xhr.send(null)
+        })
+
+        await fileDB.ref(getPFPRef(localUser)).put(blob);
+    }catch(error){
+        console.error(error);
+    }
+}
+
 function addProspectApprovalToDB(prospect, onNewMatchFunc){
     const localApprovalRef = usersCol.doc(localUser.id).collection("approvals").doc(prospect.id)
     localApprovalRef.get().then((localApproval) => {
@@ -236,6 +255,6 @@ function addMessageToDB(match, text){
 
 export {
     registerUser, loginUser, loadLocalUserData, getLocalUserData, loadProspectsData, getProspectsData,
-    updateLocalUserInDB, addProspectApprovalToDB, addProspectRejectionToDB, listenForLocalUserMatches,
-    loadMatchedProspect, listenForMostRecentMessage, listenForAllMessages, addMessageToDB
+    updateLocalUserInDB, updateLocalUserPFPInDB, addProspectApprovalToDB, addProspectRejectionToDB,
+    listenForLocalUserMatches, loadMatchedProspect, listenForMostRecentMessage, listenForAllMessages, addMessageToDB
 }
