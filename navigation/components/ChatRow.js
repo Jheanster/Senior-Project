@@ -15,7 +15,7 @@ const ChatRow = ({ matchDetails }) => {
         () => {
             loadMatchedProspect(matchDetails, (loadedUser) => setMatchedUser(loadedUser))
             const unsubscribe = listenForMostRecentMessage(
-                matchDetails, (loadedmessage) => setLastMessage(loadedmessage)
+                matchDetails, (loadedMessage) => setLastMessage(loadedMessage)
             )
             return unsubscribe
         },
@@ -33,7 +33,7 @@ const ChatRow = ({ matchDetails }) => {
         >
             <Image
                 style={tw`rounded-full h-16 w-16 mr-4`}
-                source={{ uri: matchedUser?.pfp}}
+                source={matchedUser ? { uri: matchedUser.pfp} : null}
             />
 
             <View>

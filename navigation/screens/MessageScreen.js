@@ -8,7 +8,7 @@ import SenderMessage from '../components/SenderMessage'
 import ReceiverMessage from '../components/ReceiverMessage'
 import { docDB } from '../../firebase';
 
-const MessageScreen = (_props) => {
+const MessageScreen = () => {
   const localUser = getLocalUserData()
   const [input, setInput] = useState("")
   const [messages, setMessages] = useState([])
@@ -27,8 +27,10 @@ const MessageScreen = (_props) => {
   )
 
   const sendMessage = () => {
-    addMessageToDB(matchDetails, input)
-    setInput("")
+    if(input){
+      addMessageToDB(matchDetails, input)
+      setInput("")
+    }
   }
 
   return (

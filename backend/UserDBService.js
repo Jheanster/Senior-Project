@@ -2,6 +2,7 @@ import {auth, docDB, fileDB} from "../firebase"
 import { serverTimestamp } from "@firebase/firestore"
 import {assignProspectScore} from "./ProspectScoreService"
 import {assignDistanceFromLocalUser} from "./UserLocationService"
+import * as FileSystem from 'expo-file-system'
 
 const MAX_DISTANCE_MI = 25
 const DONT_LOAD_ALREADY_SEEN_PROSPECTS = true; //for testing purposes
@@ -11,6 +12,10 @@ const matchesCol = docDB.collection("matches")
 
 var localUser = null
 var sortedProspects = null
+
+var cachedMatches = null
+const cachedMostRecentMessages = {}
+const cachedAllMessages = {}
 
 async function registerUser(newData){
     try{
@@ -169,7 +174,7 @@ async function updateLocalUserPFPInDB(image){
             xhr.send(null)
         })
 
-        await fileDB.ref(getPFPRef(localUser)).put(blob);
+        await getPFPRef(localUser).put(blob);
     }catch(error){
         console.error(error);
     }
@@ -201,11 +206,15 @@ function addProspectRejectionToDB(prospect){
 }
 
 function listenForLocalUserMatches(onUpdatedFunc){
+    if(cachedMatches){
+        onUpdatedFunc(cachedMatches)
+    }
+
     const unsubscribe = matchesCol.where("userIDs", "array-contains", localUser.id).onSnapshot((matchesSnapshot) => {
         const matches = matchesSnapshot.docs.map((matchDoc) => getDataFromDoc(matchDoc))
         onUpdatedFunc(matches)
+        cachedMatches = matches
     })
-
     return unsubscribe
 }
 
@@ -214,7 +223,8 @@ function loadMatchedProspect(match, onLoadedFunc){
 
     usersCol.doc(prospectID).get().then((userDoc) => {
         if(userDoc.exists){
-            onLoadedFunc(getDataFromDoc(userDoc))
+            const prospect = getDataFromDoc(userDoc)
+            assignPFP(prospect, () => onLoadedFunc(prospect))
         }else{
             console.warn("Matched prospect '" + prospectID + "' not found")
             onLoadedFunc(null)
@@ -223,20 +233,30 @@ function loadMatchedProspect(match, onLoadedFunc){
 }
 
 function listenForMostRecentMessage(match, onUpdatedFunc){
+    if(cachedMostRecentMessages[match.id]){
+        onUpdatedFunc(cachedMostRecentMessages[match.id])
+    }
+
     const unsubscribe = matchesCol.doc(match.id).collection("messages").orderBy("timestamp", "desc").limit(1)
         .onSnapshot((messagesSnapshot) => {
             const message = messagesSnapshot.size === 1 ? getDataFromDoc(messagesSnapshot.docs[0]) : null
             onUpdatedFunc(message)
+            cachedMostRecentMessages[match.id] = message
         })
 
     return unsubscribe
 }
 
 function listenForAllMessages(match, onUpdatedFunc){
+    if(cachedAllMessages[match.id]){
+        onUpdatedFunc(cachedAllMessages[match.id])
+    }
+
     const unsubscribe = matchesCol.doc(match.id).collection("messages").orderBy("timestamp", "desc")
         .onSnapshot((messagesSnapshot) => {
             const messages = messagesSnapshot.docs.map((messageDoc) => getDataFromDoc(messageDoc))
             onUpdatedFunc(messages)
+            cachedAllMessages[match.id] = messages
         })
     
     return unsubscribe

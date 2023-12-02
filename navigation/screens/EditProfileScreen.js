@@ -4,8 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import * as ImagePicker from 'expo-image-picker'
-import * as FileSystem from 'expo-file-system'
-import { firebase } from '../../firebase'
 import { getLocalUserData, updateLocalUserInDB, updateLocalUserPFPInDB } from '../../backend/UserDBService'
 import { assignCoordsFromAddress } from '../../backend/UserLocationService'
 

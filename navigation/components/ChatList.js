@@ -14,8 +14,7 @@ const ChatList = () => {
         () => {
             const unsubscribe = listenForLocalUserMatches((loadedMatches) => setMatches(loadedMatches))
             return unsubscribe
-        },
-        [localUser]
+        }
     )
 
     return (
