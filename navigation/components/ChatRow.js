@@ -8,7 +8,6 @@ import { docDB } from '../../firebase';
 
 const ChatRow = ({ matchDetails }) => {
     const navigation = useNavigation()
-    const localUser = getLocalUserData()
     const [matchedUser, setMatchedUser] = useState(null)
     const [lastMessage, setLastMessage] = useState(null)
 

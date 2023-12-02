@@ -181,11 +181,13 @@ function addProspectRejectionToDB(prospect){
     usersCol.doc(localUser.id).collection("rejections").doc(prospect.id).set({email: prospect.email})
 }
 
-function loadLocalUserMatches(onLoadedFunc){
-    matchesCol.where("userIDs", "array-contains", localUser.id).get().then((matchesSnapshot) => {
+function listenForLocalUserMatches(onUpdatedFunc){
+    const unsubscribe = matchesCol.where("userIDs", "array-contains", localUser.id).onSnapshot((matchesSnapshot) => {
         const matches = matchesSnapshot.docs.map((matchDoc) => getDataFromDoc(matchDoc))
-        onLoadedFunc(matches)
+        onUpdatedFunc(matches)
     })
+
+    return unsubscribe
 }
 
 function loadMatchedProspect(match, onLoadedFunc){
@@ -234,6 +236,6 @@ function addMessageToDB(match, text){
 
 export {
     registerUser, loginUser, loadLocalUserData, getLocalUserData, loadProspectsData, getProspectsData,
-    updateLocalUserInDB, addProspectApprovalToDB, addProspectRejectionToDB, loadLocalUserMatches,
+    updateLocalUserInDB, addProspectApprovalToDB, addProspectRejectionToDB, listenForLocalUserMatches,
     loadMatchedProspect, listenForMostRecentMessage, listenForAllMessages, addMessageToDB
 }
