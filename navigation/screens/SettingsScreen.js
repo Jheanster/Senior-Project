@@ -13,6 +13,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 
 import { getLocalUserData } from '../../backend/UserDBService';
+import Header from '../components/Header';
 
 const ProfileScreen = ({navigation}) => {
 
@@ -29,7 +30,7 @@ const ProfileScreen = ({navigation}) => {
 
   return (
     <SafeAreaView style={styles.container}>
-
+      <Header title="Settings"/>
       <View style={styles.userInfoSection}>
         <View style={{flexDirection: 'row', marginTop: 15}}>
           <Avatar.Image 

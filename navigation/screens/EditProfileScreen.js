@@ -6,6 +6,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import * as ImagePicker from 'expo-image-picker'
 import { getLocalUserData, updateLocalUserInDB, updateLocalUserPFPInDB } from '../../backend/UserDBService'
 import { assignCoordsFromAddress } from '../../backend/UserLocationService'
+import Header from '../components/Header'
 
 const EditProfileScreen = () => {
     const localUser = getLocalUserData();
@@ -49,6 +50,7 @@ const EditProfileScreen = () => {
 
   return (
     <SafeAreaView>
+        <Header title="Edit Profile"/>
         
         <View style={styles.container}>
             <View style={{marginLeft: 20, marginRight: 20}}>
