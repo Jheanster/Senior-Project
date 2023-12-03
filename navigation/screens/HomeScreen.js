@@ -39,7 +39,7 @@ function HomeScreen() {
         {/* Header */}
             <View style={tw`items-center relative`}>
                 <TouchableOpacity style={tw`absolute left-5 top-3`} onPress={() => navigation.navigate("Edit")}>
-                    <Image source={{uri: localUser.pfp}} style={tw`h-10 w-10 rounded-full`} />
+                    <Image source={localUser.pfp ? {uri: localUser.pfp} : null} style={tw`h-10 w-10 rounded-full`} />
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={() => navigation.navigate("Modal")}>
