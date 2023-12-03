@@ -1,10 +1,8 @@
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
-import { getLocalUserData, listenForMostRecentMessage, loadMatchedProspect } from '../../backend/UserDBService';
-import { collection, doc, onSnapshot, setDoc, query, where, getDocs, getDoc, serverTimestamp, addDoc, orderBy } from "@firebase/firestore"
+import { listenForMostRecentMessage, loadMatchedProspect } from '../../backend/UserDBService';
 import tw from "twrnc"
-import { docDB } from '../../firebase';
 
 const ChatRow = ({ matchDetails }) => {
     const navigation = useNavigation()

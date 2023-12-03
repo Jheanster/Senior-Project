@@ -216,8 +216,10 @@ function listenForLocalUserMatches(onUpdatedFunc){
 
     const unsubscribe = matchesCol.where("userIDs", "array-contains", localUser.id).onSnapshot((matchesSnapshot) => {
         const matches = matchesSnapshot.docs.map((matchDoc) => getDataFromDoc(matchDoc))
-        onUpdatedFunc(matches)
-        cachedMatches = matches
+        if(matches.length > 0){
+            onUpdatedFunc(matches)
+            cachedMatches = matches
+        }
     })
     return unsubscribe
 }
@@ -255,9 +257,11 @@ function listenForMostRecentMessage(match, onUpdatedFunc){
 
     const unsubscribe = matchesCol.doc(match.id).collection("messages").orderBy("timestamp", "desc").limit(1)
         .onSnapshot((messagesSnapshot) => {
-            const message = messagesSnapshot.size === 1 ? getDataFromDoc(messagesSnapshot.docs[0]) : null
-            onUpdatedFunc(message)
-            cachedMostRecentMessages[match.id] = message
+            if(messagesSnapshot.size === 1){
+                const message = getDataFromDoc(messagesSnapshot.docs[0])
+                onUpdatedFunc(message)
+                cachedMostRecentMessages[match.id] = message
+            }
         })
 
     return unsubscribe
@@ -271,8 +275,10 @@ function listenForAllMessages(match, onUpdatedFunc){
     const unsubscribe = matchesCol.doc(match.id).collection("messages").orderBy("timestamp", "desc")
         .onSnapshot((messagesSnapshot) => {
             const messages = messagesSnapshot.docs.map((messageDoc) => getDataFromDoc(messageDoc))
-            onUpdatedFunc(messages)
-            cachedAllMessages[match.id] = messages
+            if(messages.length > 0){
+                onUpdatedFunc(messages)
+                cachedAllMessages[match.id] = messages
+            }
         })
     
     return unsubscribe

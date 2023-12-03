@@ -1,14 +1,11 @@
 import { View, Text, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { collection, doc, onSnapshot, setDoc, query, where, getDocs, getDoc, serverTimestamp } from "@firebase/firestore"
-import { docDB } from '../../firebase';
 import tw from 'twrnc'
-import { getLocalUserData, listenForLocalUserMatches, loadLocalUserMatches } from '../../backend/UserDBService';
+import { listenForLocalUserMatches } from '../../backend/UserDBService';
 import ChatRow from './ChatRow';
 
 const ChatList = () => {
     const [matches, setMatches] = useState([]);
-    const localUser = getLocalUserData()
 
     useEffect(
         () => {
