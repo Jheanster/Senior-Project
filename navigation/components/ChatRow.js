@@ -1,56 +1,47 @@
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
-import { getLocalUserData } from '../../backend/UserDBService';
-import getMatchedUserInfo from '../../lib/getMatchedUserInfo';
-import { collection, doc, onSnapshot, setDoc, query, where, getDocs, getDoc, serverTimestamp, addDoc, orderBy } from "@firebase/firestore"
+import { listenForMostRecentMessage, loadMatchedProspect } from '../../backend/UserDBService';
 import tw from "twrnc"
-import { docDB } from '../../firebase';
 
 const ChatRow = ({ matchDetails }) => {
-    const navigation = useNavigation();
-    const localUser = getLocalUserData();
-    const [matchedUserInfo, setMatchedUserInfo] = useState(null);
-    const [lastMessage, setLastMessage] = useState('');
+    const navigation = useNavigation()
+    const [matchedUser, setMatchedUser] = useState(null)
+    const [lastMessage, setLastMessage] = useState(null)
 
-    useEffect(() => 
-        onSnapshot(
-            query(
-                collection(docDB,'matches',matchDetails.id,'messages'),
-                orderBy('timestamp','desc')
-            ), snapshot => setLastMessage(snapshot.docs[0]?.data()?.message)
-        ),
-        [matchDetails,docDB]
-    );
+    useEffect(
+        () => {
+            loadMatchedProspect(matchDetails, (loadedUser) => setMatchedUser(loadedUser))
+            const unsubscribe = listenForMostRecentMessage(
+                matchDetails, (loadedMessage) => setLastMessage(loadedMessage)
+            )
+            return unsubscribe
+        },
+        [matchDetails]
+    )
 
-    useEffect(() => {
-        setMatchedUserInfo(getMatchedUserInfo(matchDetails.users, localUser.id))
-    }, [matchDetails, localUser])
+    return (
+        <TouchableOpacity 
+            style={[tw`flex-row items-center py-3 px-5 bg-white mx-3 my-1 rounded-lg`, styles.cardShadow]}
+            onPress={() => {
+                navigation.navigate('Message',{
+                    matchDetails,
+                })
+            }}
+        >
+            <Image
+                style={tw`rounded-full h-16 w-16 mr-4`}
+                source={matchedUser?.pfp ? {uri: matchedUser.pfp} : null}
+            />
 
-    //console.log("Matched user info: ", matchedUserInfo)
-
-  return (
-    <TouchableOpacity 
-        style={[tw`flex-row items-center py-3 px-5 bg-white mx-3 my-1 rounded-lg`, styles.cardShadow]}
-        onPress={() => {
-            navigation.navigate('Message',{
-                matchDetails,
-            })
-        }}
-    >
-        <Image
-            style={tw`rounded-full h-16 w-16 mr-4`}
-            source={{ uri: matchedUserInfo?.pfp}}
-        />
-
-        <View>
-            <Text style={tw`text-lg font-semibold`}>
-                {matchedUserInfo?.name}
-            </Text>
-            <Text>{lastMessage || "Say Hi!"}</Text>
-        </View>
-    </TouchableOpacity>
-  )
+            <View>
+                <Text style={tw`text-lg font-semibold`}>
+                    {matchedUser?.name}
+                </Text>
+                <Text>{lastMessage?.text || "Say Hi!"}</Text>
+            </View>
+        </TouchableOpacity>
+    )
 }
 
 export default ChatRow

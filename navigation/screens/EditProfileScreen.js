@@ -4,22 +4,20 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import * as ImagePicker from 'expo-image-picker'
-import * as FileSystem from 'expo-file-system'
-import { firebase } from '../../firebase'
-import { getLocalUserData, updateLocalUserInDB } from '../../backend/UserDBService'
+import { getLocalUserData, updateLocalUserInDB, updateLocalUserPFPInDB } from '../../backend/UserDBService'
 import { assignCoordsFromAddress } from '../../backend/UserLocationService'
+import Header from '../components/Header'
 
 const EditProfileScreen = () => {
     const localUser = getLocalUserData();
 
-    const[name,setName] = useState(localUser.name)
-    const[bio,setBio] = useState(localUser.bio)
-    const[address,setAddress] = useState(localUser.address)
-    const[city,setCity] = useState(localUser.city)
-    const[province,setProvince] = useState(localUser.state) //referring to states as 'provinces' to avoid confusion
-    const[country,setCountry] = useState(localUser.country)
-    const [image,setImage] = useState(null);
-    const [uploading, setUploading] = useState(false);
+    const [name, setName] = useState(localUser.name)
+    const [bio, setBio] = useState(localUser.bio)
+    const [address, setAddress] = useState(localUser.address)
+    const [city, setCity] = useState(localUser.city)
+    const [province, setProvince] = useState(localUser.state) //referring to states as 'provinces' to avoid confusion
+    const [country, setCountry] = useState(localUser.country)
+    const [image, setImage] = useState(null);
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -34,49 +32,6 @@ const EditProfileScreen = () => {
         }
     }
 
-    // Change this function
-    const uploadMedia = async () => {
-        setUploading(true);
-    
-        try {
-            const { uri } = await FileSystem.getInfoAsync(image);
-            const blob = await new Promise((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                xhr.onload = () => {
-                    resolve(xhr.response);
-                };
-                xhr.onerror = (e) => {
-                    reject(new TypeError("Network request failed"));
-                };
-                xhr.responseType = 'blob'
-                xhr.open('GET', uri, true);
-                xhr.send(null);
-            });
-    
-            // Use localUser.id as the filename and upload to 'pfps/' directory
-            const filename = `pfps/pfp-${localUser.id}.png`;
-            const ref = firebase.storage().ref().child(filename);
-    
-            await ref.put(blob);
-
-              // Get the download URL of the uploaded image
-            const downloadURL = await ref.getDownloadURL();
-
-            // Update the user document in Firestore with the new 'pfp' field
-            await firebase.firestore().collection('users').doc(localUser.id).update({
-                pfp: downloadURL,
-            });
-
-            setUploading(false);
-            Alert.alert("Photo uploaded");
-            setImage(null);
-    
-        } catch (error) {
-            console.error(error);
-            setUploading(false);
-        }
-    };
-
     const submitNewData = () => {
         const newData = {name, bio, address, city, state: province, country}
 
@@ -84,8 +39,9 @@ const EditProfileScreen = () => {
             if(success){
                 updateLocalUserInDB(newData)
                 if(image !== null){
-                    uploadMedia() //TODO: rework
+                    updateLocalUserPFPInDB(image)
                 }
+                Alert.alert("Profile has been updated");
             }else{
                 Alert.alert("Unable to validate address");
             }
@@ -94,6 +50,7 @@ const EditProfileScreen = () => {
 
   return (
     <SafeAreaView>
+        <Header title="Edit Profile"/>
         
         <View style={styles.container}>
             <View style={{marginLeft: 20, marginRight: 20}}>
@@ -110,7 +67,7 @@ const EditProfileScreen = () => {
                         }}>
 
                             {/* Change to display the selected image if the user selected an image */}
-                            <ImageBackground source={{uri: image !== null ? image : localUser.pfp}}
+                            <ImageBackground source={(image || localUser.pfp) ? {uri: image || localUser.pfp} : null}
                             style={{height: 100, width: 100}}
                             imageStyle={{borderRadius: 15}}
                             >

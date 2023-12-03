@@ -1,57 +1,42 @@
-import { View, Text, SafeAreaView, TextInput, Button, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, FlatList } from 'react-native'
+import { View, SafeAreaView, TextInput, Button, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Header from '../components/Header'
-import getMatchedUserInfo from '../../lib/getMatchedUserInfo'
-import { getLocalUserData } from '../../backend/UserDBService'
+import { addMessageToDB, getLocalUserData, listenForAllMessages, loadMatchedProspect } from '../../backend/UserDBService'
 import { useRoute } from '@react-navigation/native'
 import tw from 'twrnc'
 import SenderMessage from '../components/SenderMessage'
 import ReceiverMessage from '../components/ReceiverMessage'
-import { collection, doc, onSnapshot, setDoc, query, where, getDocs, getDoc, serverTimestamp, addDoc, orderBy } from "@firebase/firestore"
-import { docDB } from '../../firebase'
+import { docDB } from '../../firebase';
 
-const MessageScreen = (props) => {
+const MessageScreen = () => {
   const localUser = getLocalUserData()
-  const [input,setInput] = useState("");
-  const [messages,setMessages] = useState([]);
+  const [input, setInput] = useState("")
+  const [messages, setMessages] = useState([])
+  const [matchedUser, setMatchedUser] = useState(null)
 
-  const {params} = useRoute();
-  const { matchDetails } = params;
-  // console.log("LocalUser: ", localUser)
-  // console.log("matchDetials.users: ", matchDetails.users[localUser.id])
+  const { params } = useRoute()
+  const { matchDetails } = params
 
-  // console.log(props.matchDetails);
-
-
-  useEffect(() => 
-    onSnapshot(
-      query(
-        collection(docDB,'matches',matchDetails.id, 'messages'),
-        orderBy('timestamp','desc')
-      ), snapshot => setMessages(snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-      })))
-    )
-  , [matchDetails, docDB])
+  useEffect(
+    () => {
+      loadMatchedProspect(matchDetails, (loadedUser) => setMatchedUser(loadedUser))
+      const unsubscribe = listenForAllMessages(matchDetails, (loadedMessages) => setMessages(loadedMessages))
+      return unsubscribe
+    },
+    [matchDetails]
+  )
 
   const sendMessage = () => {
-    addDoc(collection(docDB, 'matches', matchDetails.id, 'messages'), {
-      timestamp: serverTimestamp(),
-      userId: localUser.id,
-      name: localUser.name,
-      pfp: matchDetails.users[localUser.id].pfp,
-      message: input,
-    });
-
-    setInput("");
+    if(input){
+      addMessageToDB(matchDetails, input)
+      setInput("")
+    }
   }
-
 
   return (
     <SafeAreaView style={tw`flex-1`}>
       <Header 
-        title={getMatchedUserInfo(matchDetails.users, localUser.id).name} 
+        title={matchedUser ? matchedUser.name : ""} 
         callEnabled
       />
 
@@ -67,10 +52,10 @@ const MessageScreen = (props) => {
             style={tw`pl-4`}
             keyExtractor={item => item.id}
             renderItem={({item: message}) => 
-              message.userId === localUser.id ? (
+              message.userID === localUser.id ? (
                 <SenderMessage key={message.id} message={message}/>
               ) : (
-                <ReceiverMessage key={message.id} message={message}/>
+                <ReceiverMessage key={message.id} message={message} user={matchedUser}/>
               )
             }
           />

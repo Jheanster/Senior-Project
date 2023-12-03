@@ -2,112 +2,58 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useNavigation } from '@react-navigation/core'
 import { View, Text, Button, TouchableOpacity, Image, StyleSheet} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getLocalUserData, getProspectsData } from '../../backend/UserDBService';
+import { addProspectApprovalToDB, addProspectRejectionToDB, getLocalUserData, getProspectsData } from '../../backend/UserDBService';
 import { Ionicons, AntDesign, Entypo} from '@expo/vector-icons';
-import { collection, doc, onSnapshot, setDoc, query, where, getDocs, getDoc, serverTimestamp } from "@firebase/firestore"
 import Swiper from "react-native-deck-swiper"
 import tw from 'twrnc';
 import { docDB } from '../../firebase';
 import generateId from '../../lib/generateId';
 
+/*
+    TODO:
+    -reload prospects after settings are changes
+    -add distance away from you to prospect cards
+    -finish edit profile and create profile screens
+    -clean up code and add comments
+    -maybe: add button to reset all swipes and matches
+*/
+
 function HomeScreen() {
     const navigation = useNavigation();
-    const [profiles, setProfiles] = useState(getProspectsData());
     const localUser = getLocalUserData();
-
-    // console.log(localUser);
+    const [profiles, setProfiles] = useState([]);
     const swiperRef = useRef(null);
+
+    useEffect(
+        () => setProfiles(getProspectsData()),
+        [localUser]
+    )
     
     const handleSwipeLeft = (cardIndex) => {
-        if(!profiles[cardIndex]) return;
-
-        // This adds a new called passes collection for the user that keeps track of the passes made on that account
-        const userSwiped = profiles[cardIndex];
-        console.log(`You swiped pass on ${userSwiped.name}`)
-        setDoc(doc(docDB, 'users', localUser.id, 'passes', userSwiped.id), userSwiped);
+        const userSwiped = profiles[cardIndex]
+        if(userSwiped){
+            console.log(`You rejected ${userSwiped.name}`)
+            addProspectRejectionToDB(userSwiped)
+        }
     }
 
     const handleSwipeRight = (cardIndex) => {
-        if(!profiles[cardIndex]) return;
+        const userSwiped = profiles[cardIndex]
+        if(userSwiped){
+            console.log(`You approved ${userSwiped.name}`)
 
-        // This adds a new collection called matches that keeps track of the matches made on that account
-        const userSwiped = profiles[cardIndex];
-
-        // Check if the profile matched with you
-        getDoc(doc(docDB,'users',userSwiped.id,'matches',localUser.id)).then(
-            (documentSnapshot) => {
-                if (documentSnapshot.exists()){
-                    // User has matched with you before you matched with them
-                    // Create a match
-                    console.log(`Congrats, you have matched with ${userSwiped.name}`)
-                    setDoc(doc(docDB, 'users', localUser.id, 'matches', userSwiped.id), userSwiped);
-
-                    // Create a match
-
-                    setDoc(doc(docDB,'matches',generateId(localUser.id,userSwiped.id)), {
-                        users: {
-                            [localUser.id]: localUser,
-                            [userSwiped.id]: userSwiped,
-                        },
-                        usersMatched: [localUser.id,userSwiped.id],
-                        timestamp: serverTimestamp(),
-                    });
-                    navigation.navigate('Match', {
-                        localUser,
-                        userSwiped,
-                    });
-                } else {
-                    // Local user swiped match first
-                    console.log(`You swiped match on ${userSwiped.name}`)
-                    // This adds a new called passes collection for the user that keeps track of the matches made on that account
-                    setDoc(doc(docDB, 'users', localUser.id, 'matches', userSwiped.id), userSwiped);
-                }
-            })
-    }
-
-    useEffect(() => {
-        let unsub;
-        const fetchCards = async () => {
-
-            // Get the ids of all the profiles that a user has passed on
-            const passes = await getDocs(collection(docDB,'users',localUser.id,'passes'))
-                .then(snapshot => snapshot.docs.map(doc => doc.id));
-
-            const matches = await getDocs(collection(docDB,'users',localUser.id,'matches'))
-                .then(snapshot => snapshot.docs.map(doc => doc.id));
-
-            const passedUserIds = passes.length > 0 ? passes : ['test'];
-            const matchedUserIds = matches.length > 0 ? matches : ['test'];
-
-            // console.log(passedUserIds)
-            // console.log(matchedUserIds)
-            unsub = onSnapshot(
-
-                // Show the users you haven't matched or passed already, but when I get rid of the query it works fine
-                // query(
-                    collection(docDB,'users'),
-                //     where('id', 'not-in', [...passedUserIds, ...matchedUserIds]),
-                // ),  
-                (snapshot) => {
-                setProfiles(
-                    snapshot.docs.filter(doc => doc.id !== localUser.id).map(doc => ({
-                        id: doc.id,
-                        ...doc.data(),
-                    }))
-                )
+            addProspectApprovalToDB(userSwiped, () => {
+                navigation.navigate("Match", {localUser, userSwiped});
             })
         }
-
-        fetchCards();
-        return unsub
-    }, [docDB])
+    }
 
     return (
     <SafeAreaView style={tw`flex-1`}>
         {/* Header */}
             <View style={tw`items-center relative`}>
                 <TouchableOpacity style={tw`absolute left-5 top-3`} onPress={() => navigation.navigate("Edit")}>
-                    <Image source={{uri: localUser.pfp}} style={tw`h-10 w-10 rounded-full`} />
+                    <Image source={localUser.pfp ? {uri: localUser.pfp} : null} style={tw`h-10 w-10 rounded-full`} />
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={() => navigation.navigate("Modal")}>
@@ -130,14 +76,8 @@ function HomeScreen() {
                 cardIndex={0}
                 animateCardOpacity
                 verticalSwipe={false}
-                onSwipedLeft={(cardIndex) => {
-                    console.log("Denied")
-                    handleSwipeLeft(cardIndex)
-                }}
-                onSwipedRight={(cardIndex) => {
-                    console.log("Accepted")
-                    handleSwipeRight(cardIndex)
-                }}
+                onSwipedLeft={handleSwipeLeft}
+                onSwipedRight={handleSwipeRight}
                 backgroundColor='#4FD0E9'
                 overlayLabels={{
                     left: {
@@ -163,7 +103,7 @@ function HomeScreen() {
                     <View key={card.id} style={tw`relative bg-white h-3/4 rounded-xl`}>
                         <Image 
                             style={tw`absolute top-0 h-full w-full rounded-xl`} 
-                            source={{uri: card.pfp}}
+                            source={card.pfp ? {uri: card.pfp} : null}
                         />
 
                         <View style={[tw`absolute bottom-0 bg-white flex-row justify-between items-center w-full h-20 px-6 py-2 rounded-b-xl`,styles.cardShadow]}>

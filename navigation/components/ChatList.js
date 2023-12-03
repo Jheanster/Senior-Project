@@ -1,49 +1,33 @@
 import { View, Text, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { collection, doc, onSnapshot, setDoc, query, where, getDocs, getDoc, serverTimestamp } from "@firebase/firestore"
-import { docDB } from '../../firebase';
 import tw from 'twrnc'
-import { getLocalUserData } from '../../backend/UserDBService';
+import { listenForLocalUserMatches } from '../../backend/UserDBService';
 import ChatRow from './ChatRow';
 
 const ChatList = () => {
-    const [matches,setMatches] = useState([]);
-    const localUser = getLocalUserData()
+    const [matches, setMatches] = useState([]);
 
-    useEffect(() =>
-        onSnapshot(
-            query(
-                collection(docDB, 'matches'), 
-                where('usersMatched', 'array-contains', localUser.id)
-            ), 
-            (snapshot) => 
-                setMatches(
-                    snapshot.docs.map((doc) => ({
-                        id: doc.id,
-                        ...doc.data(),
-                }))
-            )
-        ),
-        [localUser]
-    );
-
-    //console.log("matches: ", matches)
-
-  return (
-    matches.length > 0 ? (
-        <FlatList
-            style={tw`h-full`}
-            data={matches}
-            keyExtractor={item => item.id}
-            renderItem={({item}) => <ChatRow matchDetails={item}/>}
-        />
-    ) : (
-        <View style={tw`p-5`}>
-            <Text style={tw`text-center text-lg`}>No matches at the moment</Text>
-        </View>
+    useEffect(
+        () => {
+            const unsubscribe = listenForLocalUserMatches((loadedMatches) => setMatches(loadedMatches))
+            return unsubscribe
+        }
     )
-    
-  )
+
+    return (
+        matches.length > 0 ? (
+            <FlatList
+                style={tw`h-full`}
+                data={matches}
+                keyExtractor={item => item.id}
+                renderItem={({item}) => <ChatRow matchDetails={item}/>}
+            />
+        ) : (
+            <View style={tw`p-5`}>
+                <Text style={tw`text-center text-lg`}>No matches at the moment</Text>
+            </View>
+        )
+    )
 }
 
 export default ChatList
