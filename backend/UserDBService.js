@@ -11,7 +11,7 @@ const usersCol = docDB.collection("users")
 const matchesCol = docDB.collection("matches")
 
 var localUser = null
-var sortedProspects = null
+var sortedProspects = []
 
 var cachedMatches = null
 const cachedProspects = {}

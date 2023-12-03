@@ -31,7 +31,7 @@ const ChatRow = ({ matchDetails }) => {
         >
             <Image
                 style={tw`rounded-full h-16 w-16 mr-4`}
-                source={matchedUser ? { uri: matchedUser.pfp} : null}
+                source={matchedUser?.pfp ? {uri: matchedUser.pfp} : null}
             />
 
             <View>

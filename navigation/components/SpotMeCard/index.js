@@ -6,7 +6,7 @@ const Card = ( props ) => {
     return (
         <View style={styles.card}>
             <ImageBackground
-                source={{uri: props.user.pfp}}
+                source={props.user.pfp ? {uri: props.user.pfp} : null}
                 style={styles.pfp}
             >
                 <View style={styles.cardInner}>

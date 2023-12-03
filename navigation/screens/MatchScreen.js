@@ -23,15 +23,11 @@ const MatchScreen = () => {
       <View style={tw`flex-row justify-evenly mt-5`}>
         <Image 
           style={tw`h-32 w-32 rounded-full`}
-          source={{
-            uri: localUser.pfp,
-          }}
+          source={localUser.pfp ? {uri: localUser.pfp} : null}
         />
         <Image 
           style={tw`h-32 w-32 rounded-full`}
-          source={{
-            uri: userSwiped.pfp,
-          }}
+          source={userSwiped?.pfp ? {uri: userSwiped.pfp} : null}
         />
       </View>
 

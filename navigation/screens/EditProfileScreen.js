@@ -65,7 +65,7 @@ const EditProfileScreen = () => {
                         }}>
 
                             {/* Change to display the selected image if the user selected an image */}
-                            <ImageBackground source={{uri: image !== null ? image : localUser.pfp}}
+                            <ImageBackground source={(image || localUser.pfp) ? {uri: image || localUser.pfp} : null}
                             style={{height: 100, width: 100}}
                             imageStyle={{borderRadius: 15}}
                             >

@@ -33,9 +33,7 @@ const ProfileScreen = ({navigation}) => {
       <View style={styles.userInfoSection}>
         <View style={{flexDirection: 'row', marginTop: 15}}>
           <Avatar.Image 
-            source={{
-              uri: localUser.pfp,
-            }}
+            source={localUser.pfp ? {uri: localUser.pfp} : null}
             size={80}
           />
           <View style={{marginLeft: 20}}>

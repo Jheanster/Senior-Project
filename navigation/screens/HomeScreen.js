@@ -12,8 +12,13 @@ import generateId from '../../lib/generateId';
 function HomeScreen() {
     const navigation = useNavigation();
     const localUser = getLocalUserData();
-    const [profiles, setProfiles] = useState(getProspectsData()); //TODO: reimplement useEffect() for this
+    const [profiles, setProfiles] = useState([]); //TODO: reimplement useEffect() for this
     const swiperRef = useRef(null);
+
+    useEffect(
+        () => setProfiles(getProspectsData()),
+        [localUser]
+    )
     
     const handleSwipeLeft = (cardIndex) => {
         const userSwiped = profiles[cardIndex]
@@ -89,7 +94,7 @@ function HomeScreen() {
                     <View key={card.id} style={tw`relative bg-white h-3/4 rounded-xl`}>
                         <Image 
                             style={tw`absolute top-0 h-full w-full rounded-xl`} 
-                            source={{uri: card.pfp}}
+                            source={card.pfp ? {uri: card.pfp} : null}
                         />
 
                         <View style={[tw`absolute bottom-0 bg-white flex-row justify-between items-center w-full h-20 px-6 py-2 rounded-b-xl`,styles.cardShadow]}>
