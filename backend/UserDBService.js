@@ -15,6 +15,7 @@ var sortedProspects = null
 
 var cachedMatches = null
 const cachedProspects = {}
+const cachedPFPUrls = {}
 const cachedMostRecentMessages = {}
 const cachedAllMessages = {}
 
@@ -105,6 +106,7 @@ function loadProspectsDataFromQuery(query, onCompletionFunc){
                 if(!isNaN(otherUser.score)) {
                     console.log("  -Acceptable score")
                     validProspects.push(otherUser)
+                    cachedProspects[otherUser.id] = otherUser
                 }
             }
         })
@@ -148,6 +150,7 @@ function assignPFP(user, onCompletionFunc){
     getPFPRef(user).getDownloadURL().then(
         (url) => {
             user.pfp = url
+            cachedPFPUrls[user.id] = url
             if(onCompletionFunc){
                 onCompletionFunc(true)
             }
@@ -229,7 +232,14 @@ function loadMatchedProspect(match, onLoadedFunc){
     usersCol.doc(prospectID).get().then((userDoc) => {
         if(userDoc.exists){
             const prospect = getDataFromDoc(userDoc)
-            assignPFP(prospect, () => onLoadedFunc(prospect))
+
+            if(cachedPFPUrls[prospect.id]){
+                prospect.pfp = cachedPFPUrls[prospect.id]
+                onLoadedFunc(prospect)
+            }else{
+                assignPFP(prospect, () => onLoadedFunc(prospect))
+            }
+
             cachedProspects[prospectID] = prospect
         }else{
             console.warn("Matched prospect '" + prospectID + "' not found")
