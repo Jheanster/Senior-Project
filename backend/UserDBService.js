@@ -14,6 +14,7 @@ var localUser = null
 var sortedProspects = null
 
 var cachedMatches = null
+const cachedProspects = {}
 const cachedMostRecentMessages = {}
 const cachedAllMessages = {}
 
@@ -221,10 +222,15 @@ function listenForLocalUserMatches(onUpdatedFunc){
 function loadMatchedProspect(match, onLoadedFunc){
     const prospectID = match.userIDs[0] === localUser.id ? match.userIDs[1] : match.userIDs[0]
 
+    if(cachedProspects[prospectID]){
+        onLoadedFunc(cachedProspects[prospectID])
+    }
+
     usersCol.doc(prospectID).get().then((userDoc) => {
         if(userDoc.exists){
             const prospect = getDataFromDoc(userDoc)
             assignPFP(prospect, () => onLoadedFunc(prospect))
+            cachedProspects[prospectID] = prospect
         }else{
             console.warn("Matched prospect '" + prospectID + "' not found")
             onLoadedFunc(null)
