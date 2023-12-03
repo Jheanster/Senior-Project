@@ -216,7 +216,9 @@ function listenForLocalUserMatches(onUpdatedFunc){
 
     const unsubscribe = matchesCol.where("userIDs", "array-contains", localUser.id).onSnapshot((matchesSnapshot) => {
         const matches = matchesSnapshot.docs.map((matchDoc) => getDataFromDoc(matchDoc))
-        if(matches.length > 0){
+        const prevLength = cachedMatches ? cachedMatches.length : 0
+
+        if(matches.length > prevLength){
             onUpdatedFunc(matches)
             cachedMatches = matches
         }
@@ -275,7 +277,9 @@ function listenForAllMessages(match, onUpdatedFunc){
     const unsubscribe = matchesCol.doc(match.id).collection("messages").orderBy("timestamp", "desc")
         .onSnapshot((messagesSnapshot) => {
             const messages = messagesSnapshot.docs.map((messageDoc) => getDataFromDoc(messageDoc))
-            if(messages.length > 0){
+            const prevLength = cachedAllMessages[match.id] ? cachedAllMessages[match.id].length : 0
+
+            if(messages.length > prevLength){
                 onUpdatedFunc(messages)
                 cachedAllMessages[match.id] = messages
             }
