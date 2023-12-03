@@ -9,10 +9,19 @@ import tw from 'twrnc';
 import { docDB } from '../../firebase';
 import generateId from '../../lib/generateId';
 
+/*
+    TODO:
+    -reload prospects after settings are changes
+    -add distance away from you to prospect cards
+    -finish edit profile and create profile screens
+    -clean up code and add comments
+    -maybe: add button to reset all swipes and matches
+*/
+
 function HomeScreen() {
     const navigation = useNavigation();
     const localUser = getLocalUserData();
-    const [profiles, setProfiles] = useState([]); //TODO: reimplement useEffect() for this
+    const [profiles, setProfiles] = useState([]);
     const swiperRef = useRef(null);
 
     useEffect(
