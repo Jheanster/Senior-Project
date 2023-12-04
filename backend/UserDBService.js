@@ -70,40 +70,42 @@ function getLocalUserData() {
 
 function loadProspectsData(onCompletionFunc) {
   if (localUser != null) {
-    let query = usersCol
-      .where("country", "==", localUser.country)
-      .where("state", "==", localUser.state);
+    if (localUser.country !== undefined && localUser.state !== undefined) {
+      let query = usersCol
+        .where("country", "==", localUser.country)
+        .where("state", "==", localUser.state);
 
-    if (DONT_LOAD_ALREADY_SEEN_PROSPECTS) {
-      usersCol
-        .doc(localUser.id)
-        .collection("approvals")
-        .get()
-        .then((approvalSnapshot) => {
-          const approvalEmails = approvalSnapshot.docs.map(
-            (approvalDoc) => approvalDoc.data().email
-          );
+      if (DONT_LOAD_ALREADY_SEEN_PROSPECTS) {
+        usersCol
+          .doc(localUser.id)
+          .collection("approvals")
+          .get()
+          .then((approvalSnapshot) => {
+            const approvalEmails = approvalSnapshot.docs.map(
+              (approvalDoc) => approvalDoc.data().email
+            );
 
-          usersCol
-            .doc(localUser.id)
-            .collection("rejections")
-            .get()
-            .then((rejectionSnapshot) => {
-              const rejectionEmails = rejectionSnapshot.docs.map(
-                (rejectionDoc) => rejectionDoc.data().email
-              );
-              const blacklist = [
-                localUser.email,
-                ...approvalEmails,
-                ...rejectionEmails,
-              ];
+            usersCol
+              .doc(localUser.id)
+              .collection("rejections")
+              .get()
+              .then((rejectionSnapshot) => {
+                const rejectionEmails = rejectionSnapshot.docs.map(
+                  (rejectionDoc) => rejectionDoc.data().email
+                );
+                const blacklist = [
+                  localUser.email,
+                  ...approvalEmails,
+                  ...rejectionEmails,
+                ];
 
-              query = query.where("email", "not-in", blacklist);
-              loadProspectsDataFromQuery(query, onCompletionFunc);
-            });
-        });
+                query = query.where("email", "not-in", blacklist);
+                loadProspectsDataFromQuery(query, onCompletionFunc);
+              });
+          });
+      }
     } else {
-      query = query.where("email", "!=", localUser.email);
+      let query = usersCol.where("email", "!=", localUser.email);
       loadProspectsDataFromQuery(query, onCompletionFunc);
     }
   } else {
@@ -187,11 +189,17 @@ function assignPFP(user, onCompletionFunc) {
         }
       },
       () => {
-        user.pfp = "";
-        console.warn("Failed to get PFP URL for " + user.name);
-        if (onCompletionFunc) {
-          onCompletionFunc(false);
-        }
+        fileDB
+          .ref("pfps/blank-default-pfp-wue0zko1dfxs9z2c.webp")
+          .getDownloadURL()
+          .then((url) => {
+            user.pfp = url;
+            cachedPFPUrls[user.id] = url;
+            if (onCompletionFunc) {
+              onCompletionFunc(true);
+            }
+          });
+        console.warn("Defaulting to a PFP for " + user.email);
       }
     );
 }

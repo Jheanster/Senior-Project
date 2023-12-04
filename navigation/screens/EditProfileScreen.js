@@ -26,7 +26,7 @@ import tw from "twrnc";
 
 const EditProfileScreen = () => {
   const localUser = getLocalUserData();
-  
+
   const [name, setName] = useState(localUser.name);
   const [age, setAge] = useState(localUser.age);
   const [bio, setBio] = useState(localUser.bio);
@@ -36,29 +36,33 @@ const EditProfileScreen = () => {
   const [country, setCountry] = useState(localUser.country);
   const [image, setImage] = useState(null);
   const [bodybuilding, setIsBodybuildingSelected] = useState(
-    localUser.bodybuilding
+    localUser.bodybuilding !== undefined ? localUser.bodybuilding : false
   );
   const [powerlifting, setIsPowerliftingSelected] = useState(
-    localUser.powerlifting
+    localUser.powerlifting !== undefined ? localUser.powerlifting : false
   );
-  const [crossfit, setCrossFitSelected] = useState(localUser.crossfit);
+  const [crossfit, setCrossFitSelected] = useState(
+    localUser.crossfit !== undefined ? localUser.crossfit : false
+  );
   const [calisthenics, setIsCalisthenicsSelected] = useState(
-    localUser.calisthenics
+    localUser.calisthenics !== undefined ? localUser.calisthenics : false
   );
-  const [running, setIsRunningSelected] = useState(localUser.running);
+  const [running, setIsRunningSelected] = useState(
+    localUser.running !== undefined ? localUser.running : false
+  );
   const [cycling, setIsCyclingSelected] = useState(localUser.cycling);
   const [weightLoss, setIsWeightLossSelected] = useState(
-    localUser["weight-loss"]
+    localUser["weight-loss"] !== undefined ? localUser["weight-loss"] : false
   );
   const [generalFitness, setIsGeneralFitnessSelected] = useState(
-    localUser["general-fitness"]
+    localUser["general-fitness"] !== undefined
+      ? localUser["general-fitness"]
+      : false
   );
   const [experience, setExperience] = useState(localUser.experience);
 
-
   let level = "";
   const ExperienceLevel = () => {
-    
     if (experience > 75) {
       level = "Professional";
     } else if (experience > 50) {
@@ -66,11 +70,10 @@ const EditProfileScreen = () => {
     } else if (experience > 25) {
       level = "Intermediate";
     } else {
-        level = "Novice"
+      level = "Novice";
     }
-    return level
+    return level;
   };
-  
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -196,7 +199,7 @@ const EditProfileScreen = () => {
                 <Icon name="numeric" size={20} />
                 <TextInput
                   placeholder="Age"
-                  value={age.toString()}
+                  value={age !== undefined ? age.toString() : undefined}
                   onChangeText={(text) => setAge(text)}
                   placeholderTextColor="#666666"
                   autoCorrect={false}
