@@ -183,7 +183,7 @@ const EditProfileScreen = () => {
                             />
                         </View>
 
-                        <Text style={tw`text-center text-lg mb-5 mt-5`}>Training Types</Text>
+                        <Text style={tw`text-center text-lg mb-5 mt-5 font-bold`}>Training Types</Text>
                         <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
                             <View>
                                 <Checkbox 
@@ -241,7 +241,7 @@ const EditProfileScreen = () => {
                         </View>
 
                         <View style={styles.sliderContainer}>
-                            <Text style={tw`text-center text-lg mt-5`}>Experience Level</Text>
+                            <Text style={tw`text-center text-lg mt-5 font-bold`}>Experience Level</Text>
                             <Text style={{fontSize: 20, fontWeight: 'bold'}}>{experience}</Text>
 
                             <Slider
