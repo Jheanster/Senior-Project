@@ -28,7 +28,7 @@ import {
     const localUser = getLocalUserData();
     
     const [name, setName] = useState(localUser?.name || null);
-    const [age, setAge] = useState(localUser?.age || null);
+    const [age, setAge] = useState(localUser?.age || "");
     const [bio, setBio] = useState(localUser?.bio || null);
     const [address, setAddress] = useState(localUser?.address || null);
     const [city, setCity] = useState(localUser?.city || null);
