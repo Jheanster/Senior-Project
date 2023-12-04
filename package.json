@@ -10,10 +10,14 @@
   },
   "dependencies": {
     "@expo/webpack-config": "^19.0.0",
+    "@react-native-community/slider": "^4.4.3",
     "@react-navigation/bottom-tabs": "^6.5.9",
     "@react-navigation/native": "^6.1.8",
     "@react-navigation/native-stack": "^6.9.14",
     "expo": "~49.0.13",
+    "expo-checkbox": "~2.4.0",
+    "expo-file-system": "~15.4.5",
+    "expo-image-picker": "~14.3.2",
     "expo-status-bar": "~1.6.0",
     "firebase": "^10.4.0",
     "react": "18.2.0",
@@ -28,9 +32,7 @@
     "react-native-screens": "~3.22.0",
     "react-native-web": "~0.19.6",
     "reanimated-bottom-sheet": "^1.0.0-alpha.22",
-    "twrnc": "^3.6.4",
-    "expo-image-picker": "~14.3.2",
-    "expo-file-system": "~15.4.5"
+    "twrnc": "^3.6.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
