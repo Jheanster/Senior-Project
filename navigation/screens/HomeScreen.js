@@ -177,8 +177,8 @@ function HomeScreen() {
   const localUser = getLocalUserData();
   const [profiles, setProfiles] = useState([]);
   const swiperRef = useRef(null);
-  console.log(localUser)
-  console.log(localUser.pfp)
+  // console.log(localUser)
+  // console.log(localUser.pfp)
 
   useEffect(() => setProfiles(getProspectsData()), [localUser]);
 
