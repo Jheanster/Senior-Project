@@ -26,7 +26,7 @@ import tw from "twrnc";
 
 const EditProfileScreen = () => {
   const localUser = getLocalUserData();
-
+  
   const [name, setName] = useState(localUser.name);
   const [age, setAge] = useState(localUser.age);
   const [bio, setBio] = useState(localUser.bio);
@@ -54,6 +54,23 @@ const EditProfileScreen = () => {
     localUser["general-fitness"]
   );
   const [experience, setExperience] = useState(localUser.experience);
+
+
+  let level = "";
+  const ExperienceLevel = () => {
+    
+    if (experience > 75) {
+      level = "Professional";
+    } else if (experience > 50) {
+      level = "Advanced";
+    } else if (experience > 25) {
+      level = "Intermediate";
+    } else {
+        level = "Novice"
+    }
+    return level
+  };
+  
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -315,7 +332,7 @@ const EditProfileScreen = () => {
 
               <View style={styles.sliderContainer}>
                 <Text style={tw`text-center text-lg mt-5 font-bold`}>
-                  Experience Level
+                  Experience Level: {ExperienceLevel()}
                 </Text>
                 <Text style={{ fontSize: 20, fontWeight: "bold" }}>
                   {experience}
