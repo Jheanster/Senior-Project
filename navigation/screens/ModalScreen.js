@@ -11,6 +11,7 @@ const ModalScreen = () => {
 
     const isComplete = !image || !age || !bio;
     
+    console.log('Modal:', isComplete)
 
 
   return (
