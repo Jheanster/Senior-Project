@@ -1,13 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useNavigation } from "@react-navigation/core";
-import {
-  View,
-  Text,
-  Button,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
-} from "react-native";
+import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   addProspectApprovalToDB,
@@ -18,8 +11,155 @@ import {
 import { Ionicons, AntDesign, Entypo } from "@expo/vector-icons";
 import Swiper from "react-native-deck-swiper";
 import tw from "twrnc";
-import { docDB } from "../../firebase";
-import generateId from "../../lib/generateId";
+import FlipCard from "react-native-flip-card";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
+
+const ThumbsIcon = ({ bool }) => {
+  {
+    /* toggle-off, toggle-on, smile-o, frown-o, thumbs-o-up, thumbs-o-down, times-circle-o, check-circle-o */
+  }
+  return bool ? (
+    <FontAwesome name="thumbs-o-up" size={20} style={tw`mr-2`} />
+  ) : (
+    <FontAwesome name="thumbs-o-down" size={20} style={tw`mr-2`} />
+  );
+};
+
+const ExperienceLevel = ({ number }) => {
+  var level = "Novice";
+  if (number > 75) {
+    level = "Professional";
+  } else if (number > 50) {
+    level = "Advanced";
+  } else if (number > 25) {
+    level = "Intermediate";
+  }
+
+  return <Text style={tw`text-lg`}>Experience Level: {level}</Text>;
+};
+
+const Card = ({ cardRef }) => {
+  const [backSide, setBackSide] = useState(false);
+
+  const handleFlip = () => {
+    setBackSide(!backSide);
+  };
+
+  return (
+    <FlipCard
+      style={styles.cardContainer}
+      friction={6}
+      perspective={1000}
+      flipHorizontal={true}
+      flipVertical={false}
+      flip={backSide}
+      clickable={true}
+    >
+      {/* Front Side */}
+      <TouchableOpacity onPress={handleFlip}>
+        <View key={cardRef.id} style={tw`relative bg-white h-3/3.4 rounded-xl`}>
+          <Image
+            style={tw`absolute top-0 h-full w-full rounded-xl`}
+            source={cardRef.pfp ? { uri: cardRef.pfp } : null}
+          />
+
+          <View
+            style={[
+              tw`absolute bottom-0 bg-white flex-row justify-between items-center w-full h-20 px-6 py-2 rounded-b-xl`,
+              styles.cardShadow,
+            ]}
+          >
+            <View>
+              <Text style={tw`text-xl font-bold`}>{cardRef.name}</Text>
+              <Text>{cardRef.bio}</Text>
+            </View>
+            <Text style={tw`text-2xl font-bold`}>{cardRef.age}</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+
+      {/* Back Side */}
+      <TouchableOpacity onPress={handleFlip}>
+        <View key={cardRef.id} style={tw`relative bg-white h-3/3.4 rounded-xl`}>
+          <View>
+            <Text style={tw`text-3xl font-bold text-center mt-4 mb-1`}>
+              About {cardRef.name.split(" ")[0]}
+            </Text>
+
+            <View style={styles.line} />
+
+            <View style={tw`items-center`}>
+              <View style={tw`flex-row mt-1`}>
+                <Icon name="city-variant-outline" size={28} style={tw`mr-2`} />
+                <Text style={tw`text-xl`}>City: {cardRef.city}</Text>
+              </View>
+              <View style={tw`flex-row mt-1 mb-1`}>
+                <Icon name="flag-outline" size={28} style={tw`mr-2`} />
+                <Text style={tw`text-xl`}>State: {cardRef.state}</Text>
+              </View>
+
+              <View style={styles.line} />
+
+              <Text style={tw`text-3xl font-bold text-center mt-1`}>
+                Training Types
+              </Text>
+              <View style={tw`flex-row justify-between mt-1`}>
+                <View style={tw`flex-row`}>
+                  <Text style={tw`text-base ml-4`}>Powerlifting: </Text>
+                  <ThumbsIcon bool={cardRef.powerlifting} />
+                </View>
+                <View style={tw`flex-row mr-2 ml-6.5`}>
+                  <Text style={tw`text-base text-left`}>Bodybuilding: </Text>
+                  <ThumbsIcon bool={cardRef.bodybuilding} />
+                </View>
+              </View>
+              <View style={tw`flex-row justify-between mt-1`}>
+                <View style={tw`flex-row mr-2 ml-8`}>
+                  <Text style={tw`text-base`}>CrossFit: </Text>
+                  <ThumbsIcon bool={cardRef.crossfit} />
+                </View>
+                <View style={tw`flex-row`}>
+                  <Text style={tw`text-base ml-6.5`}>Calisthenics: </Text>
+                  <ThumbsIcon bool={cardRef.calisthenics} />
+                </View>
+              </View>
+              <View style={tw`flex-row justify-between mt-1`}>
+                <View style={tw`flex-row`}>
+                  <Text style={tw`text-base ml-11`}>Running: </Text>
+                  <ThumbsIcon bool={cardRef.running} />
+                </View>
+                <View style={tw`flex-row mr-3 ml-2`}>
+                  <Text style={tw`text-base`}>General Fitness: </Text>
+                  <ThumbsIcon bool={cardRef["general-fitness"]} />
+                </View>
+              </View>
+              <View style={tw`flex-row justify-between mt-1`}>
+                <View style={tw`flex-row ml-9.5`}>
+                  <Text style={tw`text-base`}>Cycling: </Text>
+                  <ThumbsIcon bool={cardRef.cycling} />
+                </View>
+                <View style={tw`flex-row ml-7.5 mb-1`}>
+                  <Text style={tw`text-base`}>Weight Loss: </Text>
+                  <ThumbsIcon bool={cardRef["weight-loss"]} />
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.line} />
+
+            <View style={tw`items-center mt-1`}>
+              <View style={tw`mt-1 flex-row`}>
+                <Icon name="weight-lifter" size={28}></Icon>
+                <ExperienceLevel number={cardRef.experience} />
+              </View>
+            </View>
+          </View>
+        </View>
+      </TouchableOpacity>
+    </FlipCard>
+  );
+};
 
 /*
     TODO:
@@ -122,28 +262,7 @@ function HomeScreen() {
           }}
           renderCard={(card) =>
             card ? (
-              <View
-                key={card.id}
-                style={tw`relative bg-white h-3/4 rounded-xl`}
-              >
-                <Image
-                  style={tw`absolute top-0 h-full w-full rounded-xl`}
-                  source={card.pfp ? { uri: card.pfp } : null}
-                />
-
-                <View
-                  style={[
-                    tw`absolute bottom-0 bg-white flex-row justify-between items-center w-full h-20 px-6 py-2 rounded-b-xl`,
-                    styles.cardShadow,
-                  ]}
-                >
-                  <View>
-                    <Text style={tw`text-xl font-bold`}>{card.name}</Text>
-                    <Text>{card.bio}</Text>
-                  </View>
-                  <Text style={tw`text-2xl font-bold`}>{card.age}</Text>
-                </View>
-              </View>
+              <Card cardRef={card} />
             ) : (
               <View
                 style={[
@@ -189,5 +308,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.29,
     shadowRadius: 4.65,
     elevation: 2,
+  },
+
+  line: {
+    height: 4,
+    width: "100%",
+    backgroundColor: "black",
+    marginBottom: 1,
   },
 });
