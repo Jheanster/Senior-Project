@@ -177,6 +177,8 @@ function HomeScreen() {
   const localUser = getLocalUserData();
   const [profiles, setProfiles] = useState([]);
   const swiperRef = useRef(null);
+  console.log(localUser)
+  console.log(localUser.pfp)
 
   useEffect(() => setProfiles(getProspectsData()), [localUser]);
 
@@ -184,7 +186,7 @@ function HomeScreen() {
     const userDocRef = doc(docDB, 'users', localUser.id);
   
     const unsubscribe = onSnapshot(userDocRef, (snapshot) => {
-      console.log("Snapshot Data: ", snapshot.data());
+      // console.log("Snapshot Data: ", snapshot.data());
   
       if (snapshot.exists()) {
         const userData = snapshot.data();
