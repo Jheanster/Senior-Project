@@ -192,7 +192,7 @@ function HomeScreen() {
         const userData = snapshot.data();
   
         if (Object.keys(userData).length === 1 && userData.hasOwnProperty('email')) {
-          // If the user has only an email field, navigate to 'Modal'
+          // If the user has only an email field, navigate to 'Edit Profile' screen
           navigation.navigate('Edit', {screen: 'Edit Profile'});
         }
       }
@@ -235,12 +235,10 @@ function HomeScreen() {
           />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate("Modal")}>
           <Image
             style={tw`h-14 w-14`}
             source={require("../../assets/images/dumbbell.png")}
           />
-        </TouchableOpacity>
 
         <TouchableOpacity
           style={tw`absolute right-5 top-3`}
