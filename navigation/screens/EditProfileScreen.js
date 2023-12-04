@@ -27,33 +27,33 @@ import tw from "twrnc";
 const EditProfileScreen = () => {
   const localUser = getLocalUserData();
   
-  const [name, setName] = useState(localUser.name);
-  const [age, setAge] = useState(localUser.age);
-  const [bio, setBio] = useState(localUser.bio);
-  const [address, setAddress] = useState(localUser.address);
-  const [city, setCity] = useState(localUser.city);
-  const [province, setProvince] = useState(localUser.state); //referring to states as 'provinces' to avoid confusion
-  const [country, setCountry] = useState(localUser.country);
+  const [name, setName] = useState(localUser?.name || "");
+  const [age, setAge] = useState(localUser?.age || "");
+  const [bio, setBio] = useState(localUser?.bio || "");
+  const [address, setAddress] = useState(localUser?.address || "");
+  const [city, setCity] = useState(localUser?.city || "");
+  const [province, setProvince] = useState(localUser?.state || ""); //referring to states as 'provinces' to avoid confusion
+  const [country, setCountry] = useState(localUser?.country || "");
   const [image, setImage] = useState(null);
   const [bodybuilding, setIsBodybuildingSelected] = useState(
-    localUser.bodybuilding
+    localUser?.bodybuilding || false
   );
   const [powerlifting, setIsPowerliftingSelected] = useState(
-    localUser.powerlifting
-  );
-  const [crossfit, setCrossFitSelected] = useState(localUser.crossfit);
+    localUser?.powerlifting || false
+  ); 
+  const [crossfit, setCrossFitSelected] = useState(localUser?.crossfit || false);
   const [calisthenics, setIsCalisthenicsSelected] = useState(
-    localUser.calisthenics
+    localUser?.calisthenics || false
   );
-  const [running, setIsRunningSelected] = useState(localUser.running);
-  const [cycling, setIsCyclingSelected] = useState(localUser.cycling);
-  const [weightLoss, setIsWeightLossSelected] = useState(
-    localUser["weight-loss"]
+  const [running, setIsRunningSelected] = useState(localUser?.running || false);
+  const [cycling, setIsCyclingSelected] = useState(localUser?.cycling || false) ;
+  const [weightLoss, setIsWeightLossSelected] = useState( 
+    localUser?.["weight-loss"] || ""
   );
   const [generalFitness, setIsGeneralFitnessSelected] = useState(
-    localUser["general-fitness"]
+    localUser?.["general-fitness"] || ""
   );
-  const [experience, setExperience] = useState(localUser.experience);
+  const [experience, setExperience] = useState(localUser?.experience || false);
 
 
   let level = "";

@@ -14,6 +14,8 @@ import tw from "twrnc";
 import FlipCard from "react-native-flip-card";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
+import { doc, onSnapshot } from "@firebase/firestore"
+import { docDB } from "../../firebase";
 
 const ThumbsIcon = ({ bool }) => {
   {
@@ -177,6 +179,26 @@ function HomeScreen() {
   const swiperRef = useRef(null);
 
   useEffect(() => setProfiles(getProspectsData()), [localUser]);
+
+  useLayoutEffect(() => {
+    const userDocRef = doc(docDB, 'users', localUser.id);
+  
+    const unsubscribe = onSnapshot(userDocRef, (snapshot) => {
+      console.log("Snapshot Data: ", snapshot.data());
+  
+      if (snapshot.exists()) {
+        const userData = snapshot.data();
+  
+        if (Object.keys(userData).length === 1 && userData.hasOwnProperty('email')) {
+          // If the user has only an email field, navigate to 'Modal'
+          navigation.navigate('Edit', {screen: 'Edit Profile'});
+        }
+      }
+    });
+  
+    // Cleanup the listener when the component unmounts
+    return () => unsubscribe();
+  }, [localUser, navigation]);
 
   const handleSwipeLeft = (cardIndex) => {
     const userSwiped = profiles[cardIndex];

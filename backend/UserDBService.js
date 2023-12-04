@@ -46,12 +46,24 @@ function loadLocalUserData(email, onCompletionFunc) {
     .get()
     .then((snapshot) => {
       if (snapshot.size === 1) {
+        //console.log("Snapshot size: ", snapshot.size)
+        //console.log("Snapshot Data: ", snapshot.docs[0].data())
         localUser = getDataFromDoc(snapshot.docs[0]);
-        assignPFP(localUser, () => {
-          if (onCompletionFunc) {
+        //console.log(localUser)
+        console.log('Running loadLocalUserData function')
+        // Checks to see if the local user has a name, if they don't that means they're a new user. (Wouldve just done localUser?.pfp but you got rid of it so)
+        if (localUser?.name){
+          assignPFP(localUser, () => {
+            if (onCompletionFunc) {
+              onCompletionFunc();
+            }
+          });
+        } else {
+          if(onCompletionFunc){
             onCompletionFunc();
           }
-        });
+        }
+        
       } else if (snapshot.size > 1) {
         console.warn(
           "Error: There are multiple users with the email: '" + email + "'"
@@ -69,11 +81,12 @@ function getLocalUserData() {
 }
 
 function loadProspectsData(onCompletionFunc) {
-  if (localUser != null) {
+  console.log("Calling load Prospect data")
+  if (localUser != null && localUser?.country && localUser?.state) {
     let query = usersCol
-      .where("country", "==", localUser.country)
-      .where("state", "==", localUser.state);
-
+      .where("country", "==", localUser?.country)
+      .where("state", "==", localUser?.state);
+    console.log("Query: ", query)
     if (DONT_LOAD_ALREADY_SEEN_PROSPECTS) {
       usersCol
         .doc(localUser.id)
@@ -107,9 +120,12 @@ function loadProspectsData(onCompletionFunc) {
       loadProspectsDataFromQuery(query, onCompletionFunc);
     }
   } else {
-    console.warn(
-      "Error: Trying to load prospects before loading the local user"
-    );
+
+    // The user doesn't have a country or state, they are  a new user.
+    onCompletionFunc();
+    // console.warn(
+    //   "Error: Trying to load prospects before loading the local user"
+    // );
   }
 }
 
