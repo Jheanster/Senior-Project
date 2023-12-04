@@ -86,7 +86,7 @@ function loadProspectsData(onCompletionFunc) {
     let query = usersCol
       .where("country", "==", localUser?.country)
       .where("state", "==", localUser?.state);
-    console.log("Query: ", query)
+    // console.log("Query: ", query)
     if (DONT_LOAD_ALREADY_SEEN_PROSPECTS) {
       usersCol
         .doc(localUser.id)
