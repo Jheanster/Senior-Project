@@ -48,10 +48,10 @@ import {
     const [running, setIsRunningSelected] = useState(localUser?.running || false);
     const [cycling, setIsCyclingSelected] = useState(localUser?.cycling || false) ;
     const [weightLoss, setIsWeightLossSelected] = useState( 
-      localUser?.["weight-loss"] || ""
+      localUser?.["weight-loss"] || false
     );
     const [generalFitness, setIsGeneralFitnessSelected] = useState(
-      localUser?.["general-fitness"] || ""
+      localUser?.["general-fitness"] || false
     );
     const [experience, setExperience] = useState(localUser?.experience || false);
     const [imagePresent, setImagePresent] = useState(localUser?.pfp);
