@@ -56,12 +56,13 @@ import { registerUser, loginUser, loadLocalUserData, loadProspectsData } from '.
 
         loginUser(data)
             .then(response => {
-                console.log("Successfully logged in with: '" + response.user.email + "'")
+                
                 loadLocalUserData(response.user.email, () => {
                     loadProspectsData(() => {
                         navigation.navigate('Home')
                     })
                 });
+                console.log("Successfully logged in with: '" + response.user.email + "'")
             })
             .catch(err => {
                 alert(err);

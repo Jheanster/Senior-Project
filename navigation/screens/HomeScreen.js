@@ -14,6 +14,8 @@ import tw from "twrnc";
 import FlipCard from "react-native-flip-card";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
+import { doc, onSnapshot } from "@firebase/firestore"
+import { docDB } from "../../firebase";
 
 const ThumbsIcon = ({ bool }) => {
   {
@@ -175,8 +177,30 @@ function HomeScreen() {
   const localUser = getLocalUserData();
   const [profiles, setProfiles] = useState([]);
   const swiperRef = useRef(null);
+  // console.log(localUser)
+  //console.log(localUser.pfp)
 
   useEffect(() => setProfiles(getProspectsData()), [localUser]);
+
+  useLayoutEffect(() => {
+    const userDocRef = doc(docDB, 'users', localUser.id);
+  
+    const unsubscribe = onSnapshot(userDocRef, (snapshot) => {
+      // console.log("Snapshot Data: ", snapshot.data());
+  
+      if (snapshot.exists()) {
+        const userData = snapshot.data();
+  
+        if (Object.keys(userData).length === 1 && userData.hasOwnProperty('email')) {
+          // If the user has only an email field, navigate to 'Edit Profile' screen
+          navigation.navigate('Edit', {screen: 'Edit Profile'});
+        }
+      }
+    });
+  
+    // Cleanup the listener when the component unmounts
+    return () => unsubscribe();
+  }, [localUser, navigation]);
 
   const handleSwipeLeft = (cardIndex) => {
     const userSwiped = profiles[cardIndex];
@@ -211,12 +235,10 @@ function HomeScreen() {
           />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate("Modal")}>
           <Image
             style={tw`h-14 w-14`}
             source={require("../../assets/images/dumbbell.png")}
           />
-        </TouchableOpacity>
 
         <TouchableOpacity
           style={tw`absolute right-5 top-3`}

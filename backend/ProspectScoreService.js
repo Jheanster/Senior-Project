@@ -13,9 +13,6 @@ const TRAINING_TYPE_PROPS = [
     "running", "cycling", "weight-loss", "general-fitness"
 ]
 
-const IDEAL_SCHEDULE_DAY_PROPS = [
-    "ideal-mon", "ideal-tue", "ideal-wed", "ideal-thu", "ideal-fri", "ideal-sat", "ideal-sun"
-]
 
 function assignProspectScore(localUser, otherUser){
     let score = 100
@@ -49,17 +46,7 @@ function assignProspectScore(localUser, otherUser){
         return NaN
     }
 
-    IDEAL_SCHEDULE_DAY_PROPS.forEach((dayProp) => {
-        const localResting = localUser[dayProp] == -1
-        const otherResting = otherUser[dayProp] == -1
-
-        if(localResting != otherResting){
-            score -= MAX_ONE_DAY_SCHEDULE_DIFF_WEIGHT
-        }else if(!localResting){
-            const timeDiff = Math.abs(localUser[dayProp] - otherUser[dayProp])
-            score -= timeDiff/SECS_PER_DAY*MAX_ONE_DAY_SCHEDULE_DIFF_WEIGHT
-        }
-    })
+    
 
     otherUser.score = score
 }

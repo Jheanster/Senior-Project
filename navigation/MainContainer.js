@@ -13,17 +13,10 @@ import ChatScreen from './screens/ChatScreen'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './screens/LoginScreen';
 import EditProfileScreen from './screens/EditProfileScreen';
-import ModalScreen from './screens/ModalScreen';
 import MatchScreen from './screens/MatchScreen';
 import MessageScreen from './screens/MessageScreen';
 
 // Screen names
-const homeName = 'Home';
-
-const settingsName = 'Settings';
-const loginName = 'Login';
-
-const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 
@@ -50,9 +43,6 @@ export default function MainContainer(){
                     <Stack.Screen name='Message' component={MessageScreen}/>
                 </Stack.Group>
 
-                <Stack.Group screenOptions={{presentation: 'modal'}}>
-                    <Stack.Screen name='Modal' component={ModalScreen}/>
-                </Stack.Group>
                 <Stack.Group screenOptions={{presentation: 'transparentModal'}}>
                     <Stack.Screen name='Match' component={MatchScreen}/>
                 </Stack.Group>
