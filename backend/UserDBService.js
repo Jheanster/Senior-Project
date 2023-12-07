@@ -81,6 +81,7 @@ function getLocalUserData() {
 }
 
 function loadProspectsData(onCompletionFunc) {
+
   console.log("Calling load Prospect data")
   if (localUser != null && localUser?.country && localUser?.state) {
     let query = usersCol
@@ -115,8 +116,9 @@ function loadProspectsData(onCompletionFunc) {
               loadProspectsDataFromQuery(query, onCompletionFunc);
             });
         });
+
     } else {
-      query = query.where("email", "!=", localUser.email);
+      let query = usersCol.where("email", "!=", localUser.email);
       loadProspectsDataFromQuery(query, onCompletionFunc);
     }
   } else {
@@ -203,11 +205,17 @@ function assignPFP(user, onCompletionFunc) {
         }
       },
       () => {
-        user.pfp = "";
-        console.warn("Failed to get PFP URL for " + user.name);
-        if (onCompletionFunc) {
-          onCompletionFunc(false);
-        }
+        fileDB
+          .ref("pfps/blank-default-pfp-wue0zko1dfxs9z2c.webp")
+          .getDownloadURL()
+          .then((url) => {
+            user.pfp = url;
+            cachedPFPUrls[user.id] = url;
+            if (onCompletionFunc) {
+              onCompletionFunc(true);
+            }
+          });
+        console.warn("Defaulting to a PFP for " + user.email);
       }
     );
 }

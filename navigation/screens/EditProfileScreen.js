@@ -75,6 +75,7 @@ import {
         level = "Advanced";
       } else if (experience > 25) {
         level = "Intermediate";
+
       } else {
           level = "Novice"
       }
@@ -166,6 +167,7 @@ import {
                             justifyContent: "center",
                             alignItems: "center",
                           }}
+
                         >
                           <Icon
                             name="camera"
@@ -202,6 +204,7 @@ import {
                     autoCorrect={false}
                     defaultValue={localUser.name}
                     style={styles.textInput}
+
                   />
                 </View>
   
