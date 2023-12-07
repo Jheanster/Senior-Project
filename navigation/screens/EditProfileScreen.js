@@ -59,8 +59,8 @@ import {
     const isComplete = !name || !age || !bio || !address || !city || !province || !country || !imagePresent
   
     // console.log("Image:", image)
-      console.log("Image Present: ", imagePresent)
-    console.log('Is complete: ', isComplete)
+    // console.log("Image Present: ", imagePresent)
+    // console.log('Is complete: ', isComplete)
   
       //console.log(name)
   
