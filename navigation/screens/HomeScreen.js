@@ -16,6 +16,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { doc, onSnapshot } from "@firebase/firestore"
 import { docDB } from "../../firebase";
+import { setHomeScreenUpdater } from "../../backend/ScreenIntercom";
 
 const ThumbsIcon = ({ bool }) => {
   {
@@ -174,15 +175,20 @@ const Card = ({ cardRef }) => {
 
 function HomeScreen() {
   const navigation = useNavigation();
-  const localUser = getLocalUserData();
-  const [profiles, setProfiles] = useState([]);
+  const [localUser, setLocalUser] = useState(getLocalUserData())
+  const [profiles, setProfiles] = useState([])
+  const [updater, setUpdater] = useState(null)
   const swiperRef = useRef(null);
-  // console.log(localUser)
-  //console.log(localUser.pfp)
 
-  useEffect(() => setProfiles(getProspectsData()), [localUser]);
+  setHomeScreenUpdater(setUpdater)
+
+  useEffect(() => {
+    setLocalUser(getLocalUserData())
+    setProfiles(getProspectsData())
+  }, [updater])
 
   useLayoutEffect(() => {
+    //TODO: this code should be in UserDBService but idfk at this point lmaoo
     const userDocRef = doc(docDB, 'users', localUser.id);
   
     const unsubscribe = onSnapshot(userDocRef, (snapshot) => {

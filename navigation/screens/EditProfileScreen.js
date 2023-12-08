@@ -15,7 +15,9 @@ import {
   import FontAwesome from "react-native-vector-icons/FontAwesome";
   import * as ImagePicker from "expo-image-picker";
   import {
+    assignPFP,
     getLocalUserData,
+    loadProspectsData,
     updateLocalUserInDB,
     updateLocalUserPFPInDB,
   } from "../../backend/UserDBService";
@@ -23,6 +25,7 @@ import {
   import Slider from "@react-native-community/slider";
   import Header from "../components/Header";
   import tw from "twrnc";
+import { updateHomeScreen } from "../../backend/ScreenIntercom";
   
   const EditProfileScreen = () => {
     const localUser = getLocalUserData();
@@ -119,9 +122,18 @@ import {
   
       assignCoordsFromAddress(newData, (success) => {
         if (success) {
-          updateLocalUserInDB(newData);
+          updateLocalUserInDB(newData)
+
+          loadProspectsData(() => {
+            updateHomeScreen()
+          })
           if (image !== null) {
-            updateLocalUserPFPInDB(image);
+            updateLocalUserPFPInDB(image)
+            if(!localUser.pfp){
+              assignPFP(localUser, () => updateHomeScreen())
+            }
+          } else {
+            updateHomeScreen()
           }
           Alert.alert("Profile has been updated");
         } else {

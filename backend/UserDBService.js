@@ -51,7 +51,6 @@ function loadLocalUserData(email, onCompletionFunc) {
         localUser = getDataFromDoc(snapshot.docs[0]);
         //console.log(localUser)
         console.log('Running loadLocalUserData function')
-        // Checks to see if the local user has a name, if they don't that means they're a new user. (Wouldve just done localUser?.pfp but you got rid of it so)
         if (localUser?.name){
           assignPFP(localUser, () => {
             if (onCompletionFunc) {
@@ -392,6 +391,7 @@ export {
   getProspectsData,
   updateLocalUserInDB,
   updateLocalUserPFPInDB,
+  assignPFP,
   addProspectApprovalToDB,
   addProspectRejectionToDB,
   listenForLocalUserMatches,
